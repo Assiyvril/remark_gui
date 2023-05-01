@@ -138,6 +138,7 @@ class Ui_MainWindow(object):
             eur = rmb / 7.8
             self.EURInput.setText(str(eur))
 
+
 if __name__ == "__main__":
     import sys
 
