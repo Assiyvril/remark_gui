@@ -6,41 +6,138 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1126</width>
-    <height>891</height>
+    <width>1130</width>
+    <height>889</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>牙线棒</string>
+   <string>汇率转换器</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="主题">
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="PageViewLabel">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>230</y>
-      <width>121</width>
-      <height>41</height>
+      <x>400</x>
+      <y>10</y>
+      <width>111</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Hello World !</string>
+     <string>这是一个练习 Demo</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QLineEdit" name="lineEditCanBeDeleted">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>460</y>
-      <width>131</width>
-      <height>23</height>
+      <x>20</x>
+      <y>60</y>
+      <width>251</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>按下这个按钮</string>
+     <string>测试输入框 A，可被删除</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="DeleteButtun">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>110</y>
+      <width>151</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>测试按钮 A，
+按此删除输入框A的内容</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="RateConversionExchangerLabel">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>60</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>汇率转换器 欧元 -&gt; RMB</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="EURLabel">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>110</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>欧元</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="RMBLabel">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>120</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>人民币</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ExchangerButton">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>140</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>转换
+汇率</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="EURInput">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>150</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>输入欧元金额</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="RMBInput">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>150</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>输入人民币金额</string>
     </property>
    </widget>
   </widget>
@@ -49,7 +146,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1126</width>
+     <width>1130</width>
      <height>23</height>
     </rect>
    </property>
