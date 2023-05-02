@@ -6,3 +6,4 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLineEdit, QPushButton, \
 
 
 class UserLoginDialog(QDialog):
+    pass
