@@ -58,7 +58,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         if not order_flag:
             pass
         else:
-            self.flag = order_flag
+            # self.flag = order_flag # TODO 到底使用哪个逻辑 再议
             # 显示flag
             flag_dict = {
                 'red': self.FlagRed,
@@ -69,7 +69,6 @@ class MainGui(QMainWindow, Ui_mainWindow):
                 'purple': self.FlagPurple
             }
             flag_dict[order_flag].setChecked(True)
-
 
     def clipboard_changed(self):
         text = self.clipboard.text()
@@ -132,7 +131,29 @@ class MainGui(QMainWindow, Ui_mainWindow):
         if not remark:
             self.show_message('不能提交空备注')
             return None
-        result = self.order_process_obj.submit_remark(remark)
+
+        # flag 标记按钮, 当点击时，将 flag 值设置为对应的值
+        if self.FlagRed.isChecked():
+            self.flag = 'red'
+        elif self.FlagGrey.isChecked():
+            self.flag = 'grey'
+        elif self.FlagYellow.isChecked():
+            self.flag = 'yellow'
+        elif self.FlagGreen.isChecked():
+            self.flag = 'green'
+        elif self.FlagBlue.isChecked():
+            self.flag = 'blue'
+        elif self.FlagPurple.isChecked():
+            self.flag = 'purple'
+        else:
+            self.flag = None
+
+        # 是否更改了 flag 标记
+        if self.flag != self.order_process_obj.flag:
+            # 更改了
+            self.show_message(f'您更改了flag，将原本的{self.order_process_obj.flag}改为当前的：{self.flag}')
+        # 提交备注信息
+        result = self.order_process_obj.submit_remark(remark, self.flag)
         if result:
             self.show_message('提交备注成功')
             # 清空备注输入框

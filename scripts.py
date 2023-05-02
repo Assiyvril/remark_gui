@@ -65,10 +65,11 @@ class ProcessOrder:
             bic_code = '测试BIC码 ywq123'
         return bic_code
 
-    def submit_remark(self, remark):
+    def submit_remark(self, remark, flag):
         # TODO 请求API提交备注
         # 暂且返回测试数据
         print('要提交的备注', remark)
+        print('要提交的flag', flag)
         order = self.check_order()
         if not order:
             return False
