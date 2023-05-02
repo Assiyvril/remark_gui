@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 
 # Form implementation generated from reading ui file '.\gui.ui'
 #
@@ -9,9 +10,17 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
 
 
 class Ui_mainWindow(object):
+
+    # def __init__(self):
+    #
+    def __init__(self):
+        # 剪贴板
+        self.clipboard = QtWidgets.QApplication.clipboard()
+
     def setupUi(self, mainWindow):
         mainWindow.setObjectName("mainWindow")
         mainWindow.resize(714, 384)
@@ -101,8 +110,8 @@ class Ui_mainWindow(object):
         self.SubmitRemarkBotton = QtWidgets.QPushButton(self.widget2)
         self.SubmitRemarkBotton.setObjectName("SubmitRemarkBotton")
         self.horizontalLayout_2.addWidget(self.SubmitRemarkBotton)
-        self.SwitchUserBotton = QtWidgets.QPushButton(self.splitter)
-        self.SwitchUserBotton.setObjectName("SwitchUserBotton")
+        # self.SwitchUserBotton = QtWidgets.QPushButton(self.splitter)
+        # self.SwitchUserBotton.setObjectName("SwitchUserBotton")
         self.gridLayout.addWidget(self.splitter_2, 0, 1, 1, 1)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
@@ -115,6 +124,9 @@ class Ui_mainWindow(object):
 
         self.retranslateUi(mainWindow)
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
+
+        # 剪贴板
+        self.clipboard.dataChanged.connect(self.clipboard_changed)
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -140,7 +152,85 @@ class Ui_mainWindow(object):
         self.RemarkLabel.setText(_translate("mainWindow", "备注输入框"))
         self.ClearRemarkBotton.setText(_translate("mainWindow", "清空"))
         self.SubmitRemarkBotton.setText(_translate("mainWindow", "提交"))
-        self.SwitchUserBotton.setText(_translate("mainWindow", "切换用户"))
+        # self.SwitchUserBotton.setText(_translate("mainWindow", "切换用户"))
+
+        # 退出程序按钮
+        self.QuitButton.clicked.connect(mainWindow.close)
+
+        # 切换用户按钮
+    #     self.SwitchUserBotton.clicked.connect(self.switch_user)
+    #
+    # def switch_user(self):
+    #     """
+    #     切换用户, TODO
+    #     :return:
+    #     """
+    #
+    #     return None
+
+
+    def check_order(self, text):
+        """
+        正则校验是否为订单编号
+        r'^\d{15,20}$|^\d{5,10}-\d{15,20}$
+        :return:
+        """
+        text = text.strip()
+        if re.match(r'^\d{15,20}$|^\d{5,10}-\d{15,20}$', text):
+            return text
+        else:
+            return None
+
+    def get_order_info(self, order):
+        """
+        获取订单信息 TODO 需要请求API
+        :param order:
+        :return:
+        """
+        data = {
+            'order_id': order,
+            'store': '测试店铺',
+            'user': '测试用户',
+            'remark': '测试备注',
+            'flag': 'red'
+        }
+        return data
+
+    def display_order_info(self, order):
+        """
+        获取订单信息并显示
+        :param order:
+        :return:
+        """
+        # 显示订单编号
+        self.CurrentOrderLabel.setText('当前订单：' + order)
+        # 获取订单信息
+        order_info = self.get_order_info(order)
+        # 显示订单信息
+        self.CurrentOrderInfo.setText(str(order_info))
+
+    def clipboard_changed(self):
+        text = self.clipboard.text()
+        # 先校验内容是否为文本，不能为图片等
+        if not self.clipboard.mimeData().hasText():
+            print('非文本内容')
+        print('文本内容：', text, '长度：', len(text), '类型：', type(text))
+
+        # 校验是否为订单编号
+        order_id = self.check_order(text)
+        if order_id:
+            print('检测到订单编号：', order_id)
+            # 设置当前订单信息
+            self.display_order_info(order_id)
+            # 设置置顶
+            mainWindow.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+            mainWindow.show()
+            # 取消置顶
+            mainWindow.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+            mainWindow.show()
+
+        else:
+            print('非订单编号', text)
 
 
 if __name__ == "__main__":
