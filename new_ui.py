@@ -117,10 +117,10 @@ class Ui_mainWindow(object):
         self.splitter = QtWidgets.QSplitter(self.frame_3)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
-        self.ClearRemarkBotton = QtWidgets.QPushButton(self.splitter)
-        self.ClearRemarkBotton.setObjectName("ClearRemarkBotton")
-        self.SubmitRemarkBotton = QtWidgets.QPushButton(self.splitter)
-        self.SubmitRemarkBotton.setObjectName("SubmitRemarkBotton")
+        self.ClearRemarkButton = QtWidgets.QPushButton(self.splitter)
+        self.ClearRemarkButton.setObjectName("ClearRemarkButton")
+        self.SubmitRemarkButton = QtWidgets.QPushButton(self.splitter)
+        self.SubmitRemarkButton.setObjectName("SubmitRemarkButton")
         self.verticalLayout_2.addWidget(self.splitter)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
@@ -150,8 +150,8 @@ class Ui_mainWindow(object):
         self.QuitButton.setText(_translate("mainWindow", "退出程序"))
         self.ChoiceFlagLabel.setText(_translate("mainWindow", "选择一个 flag"))
         self.RemarkLabel.setText(_translate("mainWindow", "备注输入框"))
-        self.ClearRemarkBotton.setText(_translate("mainWindow", "清空"))
-        self.SubmitRemarkBotton.setText(_translate("mainWindow", "提交"))
+        self.ClearRemarkButton.setText(_translate("mainWindow", "清空"))
+        self.SubmitRemarkButton.setText(_translate("mainWindow", "提交"))
 
 
 if __name__ == "__main__":
