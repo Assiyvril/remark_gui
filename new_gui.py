@@ -18,6 +18,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.clipboard = QApplication.clipboard()
         # 订单信息处理对象
         self.order_process_obj = None
+        self.flag = None    # flag标记
 
     def listen_clipboard(self):
         self.clipboard.dataChanged.connect(self.clipboard_changed)
@@ -51,6 +52,24 @@ class MainGui(QMainWindow, Ui_mainWindow):
         order_info = self.order_process_obj.get_order_info()
         # 显示订单信息
         self.CurrentOrderInfo.setText(str(order_info))
+        # 设置 flag 标记
+        order_flag = order_info['flag']
+        print('flag:', order_flag)
+        if not order_flag:
+            pass
+        else:
+            self.flag = order_flag
+            # 显示flag
+            flag_dict = {
+                'red': self.FlagRed,
+                'grey': self.FlagGrey,
+                'yellow': self.FlagYellow,
+                'green': self.FlagGreen,
+                'blue': self.FlagBlue,
+                'purple': self.FlagPurple
+            }
+            flag_dict[order_flag].setChecked(True)
+
 
     def clipboard_changed(self):
         text = self.clipboard.text()

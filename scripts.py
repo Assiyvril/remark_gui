@@ -49,7 +49,7 @@ class ProcessOrder:
             '店铺': '测试-包子铺',
             '用户': '测试用户-王麻子',
             '备注': '测试备注-客户不要醋',
-            'flag': 'red'
+            'flag': 'green'
         }
         self.true_order = order
         self.flag = data['flag']
