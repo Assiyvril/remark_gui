@@ -47,7 +47,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         """
         # 显示订单编号
         self.CurrentOrderLabel.setText('当前订单：' + order)
-        # 获取订单信息
+        # 获取订单信息 TODO 需要请求API
         order_info = self.order_process_obj.get_order_info()
         # 显示订单信息
         self.CurrentOrderInfo.setText(str(order_info))
@@ -81,6 +81,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         """
         获取 BIC 码
         方法在 ProcessOrder 类中，目前返回的测试数据
+        TODO 需要请求API
         :return:
         """
         # 获取 BIC 码
@@ -102,6 +103,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         return None
 
     def submit_remark(self):
+        # TODO 需要请求API之后再来测试
         if self.order_process_obj is None:
             self.show_message('请先复制一个订单编号, 才能提交备注')
             return None
