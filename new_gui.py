@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 # UI 界面文件，继承自Qt Designer生成的文件
 # 实现显示与逻辑分离
-import re
-
 from PyQt5 import QtCore
-
 from new_ui import Ui_mainWindow
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut
+from PyQt5.QtGui import QKeySequence
 from scripts import ProcessOrder
 
 
 class MainGui(QMainWindow, Ui_mainWindow):
+
     def __init__(self):
         super().__init__()
         # 定义剪贴板对象
@@ -19,6 +17,9 @@ class MainGui(QMainWindow, Ui_mainWindow):
         # 订单信息处理对象
         self.order_process_obj = None
         self.flag = None    # flag标记
+        # 快捷键绑定
+        self.shortcut = QShortcut(QKeySequence("Alt+S"), self)
+        self.shortcut.activated.connect(self.submit_remark)
 
     def listen_clipboard(self):
         self.clipboard.dataChanged.connect(self.clipboard_changed)
@@ -52,6 +53,12 @@ class MainGui(QMainWindow, Ui_mainWindow):
         order_info = self.order_process_obj.get_order_info()
         # 显示订单信息
         self.CurrentOrderInfo.setText(str(order_info))
+        # 若已有备注信息则显示
+        remark_info = order_info.get('remark')
+        if remark_info:
+            self.RemarkTextInput.setText(remark_info)
+        else:
+            self.RemarkTextInput.setText('当前订单无备注，请在此输入')
         # 设置 flag 标记
         order_flag = order_info['flag']
         print('flag:', order_flag)
