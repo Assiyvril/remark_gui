@@ -29,8 +29,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
         设置按钮功能
         :return:
         """
-        # 退出程序按钮 QuitButton
-        self.QuitButton.clicked.connect(self.close)
+        # 退出程序按钮 QuitButton，退出所有窗口
+        self.QuitButton.clicked.connect(QApplication.quit)
 
         # 获取 BIC 码按钮 GetBicButton
         self.GetBicButton.clicked.connect(self.get_bic)
