@@ -4,8 +4,13 @@
 2 通过 clientId（AppKey）和 clientSecret（AppSecret）获取用户 Token
 
 """
+import base64
+import hmac
 import json
+import re
 import sys
+import time
+from hashlib import sha256
 
 import requests
 from PyQt5.QtCore import QUrl
@@ -91,45 +96,97 @@ class DDLogin:
         response = requests.get(url=url)
         print(response.text)
 
-# if __name__ == '__main__':
-#     qr_url = 'https://login.dingtalk.com/login/qrcode.htm?goto=https%3A%2F%2Foapi.dingtalk.com%2Fconnect%2Foauth2%2Fsns_authorize%3Fappid%3Ddingqqjuy2zdbf7qd9v0%26response_type%3Dcode%26scope%3Dsnsapi_login%26state%3DSTATE%26redirect_uri%3Dhttp%3A%2F%2Fddt.zjyu.de'
-#     reponse = requests.get(
-#         url=qr_url,
-#     )
-#     print('reponse.text\n', reponse.text)
-#     print('reponse.content\n', reponse.content)
-#     print('reponse.json\n', reponse.json())
-#     print('reponse.headers\n', reponse.headers)
-#     print('reponse.cookies\n', reponse.cookies)
-#     print('reponse.status_code\n', reponse.status_code)
-#     print('reponse.url\n', reponse.url)
-#     print('reponse.history\n', reponse.history)
-#     print('reponse.encoding\n', reponse.encoding)
-#     print('reponse.raw\n', reponse.raw)
-#     print('reponse.reason\n', reponse.reason)
-#     print('reponse.object\n', reponse)
-
-
 
 if __name__ == '__main__':
+
     class MainWindow(QMainWindow):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             # 设置窗口标题
             self.setWindowTitle('My Browser')
-            self.setFixedSize(800,600)
+            self.setFixedSize(1600, 1000)
             # 设置窗口图标
             self.setWindowIcon(QIcon('flags/6.png'))
             self.show()
 
             # 设置浏览器
             self.browser = QWebEngineView()
-            qr_url = 'https://login.dingtalk.com/login/qrcode.htm?goto=https%3A%2F%2Foapi.dingtalk.com%2Fconnect%2Foauth2%2Fsns_authorize%3Fappid%3Ddingqqjuy2zdbf7qd9v0%26response_type%3Dcode%26scope%3Dsnsapi_login%26state%3DSTATE%26redirect_uri%3Dhttp%3A%2F%2Fddt.zjyu.de'
+            # 绑定url改变信号
+            self.browser.urlChanged.connect(self.url_changed)
+            qr_url = 'https://login.dingtalk.com/oauth2/auth?redirect_uri=http://127.0.0.1:80&response_type=code&client_id=dingqqjuy2zdbf7qd9v0&scope=openid&state=dddd&prompt=consent'
             # 指定打开界面的 URL
             self.browser.setUrl(QUrl(qr_url))
              # 添加浏览器到窗口中
             self.setCentralWidget(self.browser)
 
+        def url_changed(self, url):
+
+            print(type(url.toString()))
+            # http://127.0.0.1/?authCode=29682bbaf07f30ac91cce307e88493b5&state=dddd  提取出 authCode 29682bbaf07f30ac91cce307e88493b5
+            auth_code = re.findall(r'authCode=(.*?)&', url.toString())
+            if auth_code:
+                print('发现code:', auth_code)
+
+                time_stamp = time.time()
+                print('time_stamp:\n', time_stamp)
+                signature = base64.b64encode(
+                    hmac.new(
+                        APP_SECRET.encode('utf-8'),
+                        time_stamp.encode('utf-8'),
+                        digestmod=sha256
+                    ).digest()
+                )
+                print('signature:\n', signature)
+
+                url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?accessKey=dingqqjuy2zdbf7qd9v0&timestamp={time_stamp}&signature={signature}'
+                post_data = json.dumps(
+                    {'tmp_auth_code': auth_code}
+                )
+                header = {
+                    'Content-Type': 'application/json'
+                }
+                print('请求中')
+                response = requests.post(
+                    url=url,
+                    data=post_data,
+                    headers=header
+                )
+                print('Reponse: \n', response)
+                print('Reponse.text: \n', response.text)
+                print('Reponse.json: \n', response.json())
+
+            else:
+                print('没有获取到code')
+                return None
+
+        def get_user_info(self, sns_code):
+            """
+            根据 SNS code 获取用户信息
+            :param sns_code:
+            :return:
+            """
+            time_stamp = time.time()
+            signature = base64.b64encode(
+                hmac.new(
+                    APP_SECRET.encode('utf-8'),
+                    time_stamp.encode('utf-8'),
+                    digestmod=sha256
+                ).digest()
+            )
+            url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?accessKey=dingqqjuy2zdbf7qd9v0&timestamp={time_stamp}&signature={signature}'
+            post_data = json.dumps(
+                {'tmp_auth_code': sns_code}
+            )
+            header = {
+                'Content-Type': 'application/json'
+            }
+            response_data = requests.post(
+                url=url,
+                data=post_data,
+                headers=header
+            ).json()
+
+            return response_data
     # 创建应用
     app = QApplication(sys.argv)
     # 创建主窗口
