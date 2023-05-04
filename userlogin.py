@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
+
+import requests
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
@@ -16,21 +19,66 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
         self.setupUi(self)
         self.LoginBotton.clicked.connect(self.login_event)
         self.QuitBotton.clicked.connect(QCoreApplication.instance().quit)
+        self.user_name = None
+        self.user_shop = None
 
-    def login_event(self):
+    def login(self):
+        """
+        API 请求登录
+        :return:
+        """
         username = self.UserNameInput.text()
         password = self.PasswdInput.text()
-
-        if username == 'admin' and password == 'hello':
-            # 临时测试逻辑 后续需要适配 登录 API TODO
-            self.accept()
+        login_url = 'http://data.slpzb.com/rest/v1/account/login/'
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': '*/*',
+            'DNT': '1'
+        }
+        post_data = json.dumps(
+            {
+                'username': username,
+                'password': password
+            }
+        )
+        response = requests.post(
+            url=login_url,
+            data=post_data,
+            headers=headers
+        ).json()
+        if response.get('id') and response.get('username'):
+            self.user_name = response.get('username')
+            self.user_shop = response.get('p_name')
             return True
-        else:
+        elif response['msg'] == '用户名或密码错误':
             QMessageBox.warning(
                 self, '错误', '用户名或密码错误！',
                 QMessageBox.Yes, QMessageBox.Yes
             )
+            self.UserNameInput.setFocus()
+            self.PasswdInput.selectAll()
+            return False
+        else:
+            QMessageBox.warning(
+                self, '错误', '登录出错，请检查网络链接或联系管理员！',
+                QMessageBox.Yes, QMessageBox.Yes
+            )
+            self.UserNameInput.setFocus()
+            self.PasswdInput.selectAll()
+            return False
 
-            self.UserNameInput.setFocus()  # 将光标移动到用户名输入框
-            self.PasswdInput.selectAll()  # 将用户名输入框中的内容全选
+    def login_event(self):
+        login_result = self.login()
+
+        if login_result:
+            self.accept()
+            return True
+        else:
+            # QMessageBox.warning(
+            #     self, '错误', '用户名或密码错误！',
+            #     QMessageBox.Yes, QMessageBox.Yes
+            # )
+            #
+            # self.UserNameInput.setFocus()  # 将光标移动到用户名输入框
+            # self.PasswdInput.selectAll()  # 将用户名输入框中的内容全选
             return False
