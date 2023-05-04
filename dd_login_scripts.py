@@ -10,6 +10,7 @@ import json
 import re
 import sys
 import time
+import urllib
 from hashlib import sha256
 
 import requests
@@ -121,40 +122,14 @@ if __name__ == '__main__':
 
         def url_changed(self, url):
 
-            print(type(url.toString()))
             # http://127.0.0.1/?authCode=29682bbaf07f30ac91cce307e88493b5&state=dddd  提取出 authCode 29682bbaf07f30ac91cce307e88493b5
             auth_code = re.findall(r'authCode=(.*?)&', url.toString())
             if auth_code:
+                # 中断链接
+                # self.browser.setUrl(QUrl('about:blank'))
                 print('发现code:', auth_code)
-
-                time_stamp = time.time()
-                print('time_stamp:\n', time_stamp)
-                signature = base64.b64encode(
-                    hmac.new(
-                        APP_SECRET.encode('utf-8'),
-                        time_stamp.encode('utf-8'),
-                        digestmod=sha256
-                    ).digest()
-                )
-                print('signature:\n', signature)
-
-                url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?accessKey=dingqqjuy2zdbf7qd9v0&timestamp={time_stamp}&signature={signature}'
-                post_data = json.dumps(
-                    {'tmp_auth_code': auth_code}
-                )
-                header = {
-                    'Content-Type': 'application/json'
-                }
-                print('请求中')
-                response = requests.post(
-                    url=url,
-                    data=post_data,
-                    headers=header
-                )
-                print('Reponse: \n', response)
-                print('Reponse.text: \n', response.text)
-                print('Reponse.json: \n', response.json())
-
+                a = self.get_user_info(auth_code[0])
+                print('GET \n', a)
             else:
                 print('没有获取到code')
                 return None
@@ -165,14 +140,15 @@ if __name__ == '__main__':
             :param sns_code:
             :return:
             """
-            time_stamp = time.time()
-            signature = base64.b64encode(
-                hmac.new(
-                    APP_SECRET.encode('utf-8'),
-                    time_stamp.encode('utf-8'),
-                    digestmod=sha256
-                ).digest()
-            )
+            time_stamp = int(time.time() * 1000)
+            # 签名算法为HmacSHA256，签名数据是当前时间戳timestamp，密钥是 APP_SECRET，使用密钥对 timestamp 计算签名值。
+
+            signature_bytes = hmac.new(APP_SECRET.encode('utf-8'), str(time_stamp).encode('utf-8'), sha256).digest()
+
+            signature = base64.b64encode(signature_bytes).decode('utf-8')
+            import urllib.parse
+            signature = urllib.parse.quote_plus(signature)
+            print('signature:\n', signature)
             url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?accessKey=dingqqjuy2zdbf7qd9v0&timestamp={time_stamp}&signature={signature}'
             post_data = json.dumps(
                 {'tmp_auth_code': sns_code}
@@ -180,11 +156,14 @@ if __name__ == '__main__':
             header = {
                 'Content-Type': 'application/json'
             }
-            response_data = requests.post(
+            response = requests.post(
                 url=url,
                 data=post_data,
                 headers=header
-            ).json()
+            )
+            print('response_text:\n', response.text)
+            response_data = response.json()
+            print('response_data:\n', response_data)
 
             return response_data
     # 创建应用
