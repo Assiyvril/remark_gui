@@ -41,6 +41,8 @@ class ProcessOrder:
         self.true_order = None      # 真正的订单编号，合法的
         self.flag = None        # 订单 Flag
         self.flag_text = None       # 订单 Flag 文本
+        self.user_name = None       # 用户名
+        self.shop_id = None     # 店铺 ID
 
     def check_order(self):
         text = self.order_text.strip()
@@ -112,12 +114,49 @@ class ProcessOrder:
             bic_code = '暂不开放此功能'
         return bic_code
 
-    def submit_remark(self, remark, flag):
-        # TODO 请求API提交备注
-        # 暂且返回测试数据
-        print('要提交的备注', remark)
-        print('要提交的flag', flag)
-        order = self.check_order()
-        if not order:
-            return False
-        return True
+    def submit_remark(self, remark, flag_num_str):
+        url = 'https://web.slpzb.com/rest/v1/douyin_up_memo/'
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        post_data = json.dumps(
+            {
+                "flat": "upbanner",
+                "order_id": self.true_order,
+                "remark": remark,
+                "star": flag_num_str,
+                "prefix_id": self.shop_id,
+                "username": self.user_name
+            }
+        )
+        response = requests.post(
+            url=url,
+            data=post_data,
+            headers=headers
+        ).json()
+        re_msg = response.get('msg')
+        if re_msg != '操作成功':
+            data = {
+                'error': True,
+                'msg': '提交失败, 请检查网络或联系管理员'
+            }
+            return data
+        response_data = response.get('query')
+        if not response_data:
+            data = {
+                'error': True,
+                'msg': '提交成功, 但返回数据有误，请将此 bug 报告给管理员'
+            }
+            return data
+        remark_changed = response_data.get('memo')
+        order_be_changed = response_data.get('tbno')
+        flag_changed = response_data.get('banner')
+        data = {
+            'error': False,
+            'msg': '提交成功',
+            'remark_changed': remark_changed,
+            'order_be_changed': order_be_changed,
+            'flag_changed_text': FLAG_DICT.get(FLAG_DICT.get(flag_changed))
+        }
+        print('response_data\n', response_data)
+        return data

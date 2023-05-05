@@ -22,6 +22,15 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.shortcut.activated.connect(self.submit_remark)
         # 暂不展示订单信息，只展示已有的备注和 flag
 
+        # 保存登录的当前用户信息
+        self.user_name = None
+        self.user_shop = None
+        self.user_shop_id = None
+
+        # 修改前的订单信息，用于对比展示
+        self.origin_remark = None
+        self.origin_flag_text = None
+
     def listen_clipboard(self):
         self.clipboard.dataChanged.connect(self.clipboard_changed)
 
@@ -63,6 +72,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
         order_flag = order_info.get('flag')
         flag_text = order_info.get('flag_text', '无')
         remark = order_info.get('remark', '无')
+        self.origin_remark = remark
+        self.origin_flag_text = flag_text
         display_text = f'当前订单：\n{order}\n' + \
                        f'订单标记：\n{flag_text}\n' + \
                        f'备注信息：\n{remark}'
@@ -104,6 +115,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
 
             # 设置当前订单信息
             self.display_order_info(order)
+            self.order_process_obj.shop_id = self.user_shop_id
+            self.order_process_obj.user_name = self.user_name
             # 设置置顶
             self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
             self.window().show()
@@ -140,7 +153,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         return None
 
     def submit_remark(self):
-        # TODO 需要请求API之后再来测试
+
         if self.order_process_obj is None:
             self.show_message('请先复制一个订单编号, 才能提交备注')
             return None
@@ -168,23 +181,44 @@ class MainGui(QMainWindow, Ui_mainWindow):
             self.flag = None
 
         # 是否更改了 flag 标记
-        if self.flag != self.order_process_obj.flag:
-            # 更改了
-            self.show_message(
-                f'您更改了flag，将原本的{self.order_process_obj.flag}改为当前的：{self.flag}')
-        # 提交备注信息
-        result = self.order_process_obj.submit_remark(remark, self.flag)
-        if result:
-            self.show_message('提交备注成功')
-            # 清空备注输入框
-            self.RemarkTextInput.clear()
-            # 刷新订单信息
-            order_info = self.order_process_obj.get_order_info()
-            self.CurrentOrderInfo.setText(str(order_info))
-        else:
-            self.show_message('提交备注失败')
+        # if self.flag != self.order_process_obj.flag:
+        #     # 更改了
+        #     self.show_message(
+        #         f'您更改了flag，将原本的{self.order_process_obj.flag}改为当前的：{self.flag}')
 
-        return None
+        # 提交备注信息 以数字形式提交 flag 标记， 0 grey， 1 red， 2 yellow， 3 green， 4 blue，
+        # 5 purple, 6 purple
+        flag_dict = {
+            'red': '1',
+            'grey': '0',
+            'yellow': '2',
+            'green': '3',
+            'blue': '4',
+            'purple': '5'
+        }
+        flag_num_str = flag_dict.get(self.flag, '0')
+        result = self.order_process_obj.submit_remark(
+            remark=remark, flag_num_str=flag_num_str
+        )
+        if result['error']:
+            msg = f"提交备注失败，错误信息：{result['msg']}"
+            self.show_message(msg)
+            return False
+
+        self.show_message('提交备注成功')
+        # 清空备注输入框
+        self.RemarkTextInput.clear()
+        # 在 CurrentOrderInfo 显示修改后的信息
+        remark_changed = result['remark_changed']
+        order_be_changed = result['order_be_changed']
+        flag_changed_text = result['flag_changed_text']
+        display_text = f'修改完成！\n被修改的订单：\n{order_be_changed}\n' + \
+                       f'原本的备注：\n{self.origin_remark}\n' + \
+                       f'被修改为了：\n{remark_changed}\n' + \
+                       f'原本的flag：\n{self.origin_flag_text}\n' + \
+                       f'被修改为了：\n{flag_changed_text}'
+        self.CurrentOrderInfo.setText(display_text)
+        return True
 
     def show_message(self, message: str):
         """

@@ -21,6 +21,7 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
         self.QuitBotton.clicked.connect(QCoreApplication.instance().quit)
         self.user_name = None
         self.user_shop = None
+        self.user_shop_id = None
 
     def login(self):
         """
@@ -47,6 +48,7 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
         if response.get('code') == 200 and response.get('data').get('id'):
             self.user_name = response.get('data').get('username')
             self.user_shop = response.get('data').get('prefix').get('name')
+            self.user_shop_id = response.get('data').get('prefix').get('id')
             return True
         elif response['msg'] == '用户名或者密码错误':
             QMessageBox.warning(
