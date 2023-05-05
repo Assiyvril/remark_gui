@@ -29,11 +29,9 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
         """
         username = self.UserNameInput.text()
         password = self.PasswdInput.text()
-        login_url = 'http://data.slpzb.com/rest/v1/account/login/'
+        login_url = 'https://web.slpzb.com/rest/v1/account/jwtlogin/'
         headers = {
-            'Content-Type': 'application/json',
-            'Accept': '*/*',
-            'DNT': '1'
+            'Content-Type': 'application/json'
         }
         post_data = json.dumps(
             {
@@ -46,11 +44,11 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
             data=post_data,
             headers=headers
         ).json()
-        if response.get('id') and response.get('username'):
-            self.user_name = response.get('username')
-            self.user_shop = response.get('p_name')
+        if response.get('code') == 200 and response.get('data').get('id'):
+            self.user_name = response.get('data').get('username')
+            self.user_shop = response.get('data').get('prefix').get('name')
             return True
-        elif response['msg'] == '用户名或密码错误':
+        elif response['msg'] == '用户名或者密码错误':
             QMessageBox.warning(
                 self, '错误', '用户名或密码错误！',
                 QMessageBox.Yes, QMessageBox.Yes
