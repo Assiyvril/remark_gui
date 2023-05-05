@@ -16,10 +16,11 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.clipboard = QApplication.clipboard()
         # 订单信息处理对象
         self.order_process_obj = None
-        self.flag = None    # flag标记
+        self.flag = None  # flag标记
         # 快捷键绑定
         self.shortcut = QShortcut(QKeySequence("Alt+S"), self)
         self.shortcut.activated.connect(self.submit_remark)
+        # 暂不展示订单信息，只展示已有的备注和 flag
 
     def listen_clipboard(self):
         self.clipboard.dataChanged.connect(self.clipboard_changed)
@@ -51,17 +52,29 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.CurrentOrderLabel.setText('当前订单：' + order)
         # 获取订单信息 TODO 需要请求API
         order_info = self.order_process_obj.get_order_info()
-        # 显示订单信息
-        self.CurrentOrderInfo.setText(str(order_info))
-        # 若已有备注信息则显示
-        remark_info = order_info.get('remark')
-        if remark_info:
-            self.RemarkTextInput.setText(remark_info)
+        if order_info['error']:
+            # 展示错误信息
+            self.CurrentOrderInfo.setText(
+                f"查询的订单：{order_info['order']}, \n错误信息：{order_info['info']}"
+            )
+        # 在 CurrentOrderInfo 展示 flag 和备注信息
+        # 在备注输入框展示备注信息
+        # 将对应的 flag 按钮选中
+        order_flag = order_info.get('flag')
+        flag_text = order_info.get('flag_text', '无')
+        remark = order_info.get('remark', '无')
+        display_text = f'当前订单：\n{order}\n' + \
+                       f'订单标记：\n{flag_text}\n' + \
+                       f'备注信息：\n{remark}'
+        self.CurrentOrderInfo.setText(display_text)
+
+        # 备注输入框
+        if remark:
+            self.RemarkTextInput.setText(remark)
         else:
             self.RemarkTextInput.setText('当前订单无备注，请在此输入')
+
         # 设置 flag 标记
-        order_flag = order_info['flag']
-        print('flag:', order_flag)
         if not order_flag:
             pass
         else:
@@ -81,15 +94,14 @@ class MainGui(QMainWindow, Ui_mainWindow):
         text = self.clipboard.text()
         # 先校验内容是否为文本，不能为图片等
         if not self.clipboard.mimeData().hasText():
-            print('非文本内容')
-        print('文本内容：', text, '长度：', len(text), '类型：', type(text))
+            pass
 
         # 实例化订单信息处理对象
         self.order_process_obj = ProcessOrder(text)
         # 校验是否为订单编号
         order = self.order_process_obj.check_order()
         if order:
-            print('检测到订单编号：', order)
+
             # 设置当前订单信息
             self.display_order_info(order)
             # 设置置顶
@@ -100,7 +112,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
             self.window().show()
 
         else:
-            print('非订单编号', text)
+            pass
 
     def get_bic(self):
         """
@@ -158,7 +170,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
         # 是否更改了 flag 标记
         if self.flag != self.order_process_obj.flag:
             # 更改了
-            self.show_message(f'您更改了flag，将原本的{self.order_process_obj.flag}改为当前的：{self.flag}')
+            self.show_message(
+                f'您更改了flag，将原本的{self.order_process_obj.flag}改为当前的：{self.flag}')
         # 提交备注信息
         result = self.order_process_obj.submit_remark(remark, self.flag)
         if result:
