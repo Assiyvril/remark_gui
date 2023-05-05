@@ -6,7 +6,26 @@
         1，正则校验是否为订单编号
         2，获取订单信息
 """
+import json
 import re
+
+import requests
+
+FLAG_DICT = {
+    '0': 'grey',
+    '1': 'red',
+    '2': 'yellow',
+    '3': 'green',
+    '4': 'blue',
+    '5': 'purple',
+    '6': 'purple',
+    'grey': '灰色',
+    'red': '红色',
+    'yellow': '黄色',
+    'green': '绿色',
+    'blue': '蓝色',
+    'purple': '紫色',
+}
 
 
 class ProcessOrder:
@@ -21,6 +40,7 @@ class ProcessOrder:
         self.order_text = order_text    # 用户通过复制输入的订单编号文本，可能不合法
         self.true_order = None      # 真正的订单编号，合法的
         self.flag = None        # 订单 Flag
+        self.flag_text = None       # 订单 Flag 文本
 
     def check_order(self):
         text = self.order_text.strip()
@@ -31,39 +51,65 @@ class ProcessOrder:
 
     def get_order_info(self):
         """
-        获取订单信息 TODO 需要请求API
-        :param order:
+        获取订单信息
         :return:
         """
         order = self.check_order()
         if not order:
             data = {
-                '订单': self.order_text,
-                '信息': '订单编号错误，查询不到信息'
+                'order': self.order_text,
+                'info': '查询不到信息, 可能是订单编号有误',
+                'error': True
             }
             return data
-        # TODO 请求API获取订单信息
-        # 暂且返回测试数据
-        data = {
-            '订单': order,
-            '店铺': '测试-包子铺',
-            '用户': '测试用户-王麻子',
-            '备注': '测试备注-客户不要醋',
-            'flag': 'green',
 
+        # 请求API获取订单信息，只能获取到 备注：seller_words 和 flag：star
+        url = 'https://web.slpzb.com/rest/v1/douyin_up_memo/'
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        post_data = json.dumps(
+            {
+                "order_id": order,
+                "flat": "getmemo"
+            }
+        )
+        response = requests.post(
+            url=url,
+            data=post_data,
+            headers=headers
+        ).json()
+
+        response_data = response.get('data')
+        if not response_data:
+            data = {
+                'order': order,
+                'info': '查询不到信息, 可能是订单编号有误',
+                'error': True
+            }
+            return data
+        remark = response_data.get('seller_words')
+        flag = response_data.get('star')
+        data = {
+            'order': order,
+            'flag': FLAG_DICT.get(flag),
+            'flag_text': FLAG_DICT.get(FLAG_DICT.get(flag)),
+            'remark': remark,
+            'error': False
         }
         self.true_order = order
-        self.flag = data['flag']
+        self.flag = FLAG_DICT.get(flag)
+        self.flag_text = FLAG_DICT.get(FLAG_DICT.get(flag))
         return data
 
     def get_bic(self):
-        # TODO 请求API获取BIC码
+        # TODO 请求API获取BIC码 暂时不做此功能
         # 暂且返回测试数据
         order = self.check_order()
         if not order:
             bic_code = '订单编号错误，查询不到BIC码'
         else:
-            bic_code = '测试BIC码 ywq123'
+            bic_code = '暂不开放此功能'
         return bic_code
 
     def submit_remark(self, remark, flag):
