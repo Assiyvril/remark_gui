@@ -59,7 +59,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         """
         # 显示订单编号
         self.CurrentOrderLabel.setText('当前订单：' + order)
-        # 获取订单信息 TODO 需要请求API
+        # 获取订单信息
         order_info = self.order_process_obj.get_order_info()
         if order_info['error']:
             # 展示错误信息
@@ -89,7 +89,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         if not order_flag:
             pass
         else:
-            # self.flag = order_flag # TODO 到底使用哪个逻辑 再议
+            # self.flag = order_flag
             # 显示flag
             flag_dict = {
                 'red': self.FlagRed,
@@ -131,7 +131,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         """
         获取 BIC 码
         方法在 ProcessOrder 类中，目前返回的测试数据
-        TODO 需要请求API
+        TODO 需要后期用爬虫取得，下个版本再做
         :return:
         """
         # 获取 BIC 码
