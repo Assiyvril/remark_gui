@@ -7,7 +7,7 @@ code file: first_demo.py
 """
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+from PyQt5.QtWidgets import QApplication, QDialog
 from new_gui import MainGui
 import userlogin as login
 
@@ -16,7 +16,6 @@ if __name__ == "__main__":
     window_application = QApplication(sys.argv)
     # 设置登录窗口
     login_ui = login.UserNameLoginDialog()
-
 
     # 校验是否验证通过
     if login_ui.exec_() == QDialog.Accepted:
