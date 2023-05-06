@@ -167,6 +167,9 @@ class DDLogin:
 
 
 class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+    """
+    拦截请求
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -183,13 +186,14 @@ class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
             pass
 
 
-app = QApplication(sys.argv)
-view = QWebEngineView()
-page = QWebEnginePage()
-page.setUrl(QUrl(QR_URL))
-t = WebEngineUrlRequestInterceptor()
-page.profile().setRequestInterceptor(t)
-view.setPage(page)
-view.resize(600, 400)
-view.show()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    view = QWebEngineView()
+    page = QWebEnginePage()
+    page.setUrl(QUrl(QR_URL))
+    t = WebEngineUrlRequestInterceptor()
+    page.profile().setRequestInterceptor(t)
+    view.setPage(page)
+    view.resize(600, 400)
+    view.show()
+    sys.exit(app.exec_())
