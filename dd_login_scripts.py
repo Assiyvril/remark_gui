@@ -63,36 +63,6 @@ class DDLogin:
         else:
             return None
 
-    def get_user_token(self):
-        """
-        获取用户 token
-        :return:
-        """
-        url = 'https://api.dingtalk.com/v1.0/oauth2/userAccessToken/'
-        post_data = json.dumps(
-            {
-                'clientId': APP_KEY,
-                'clientSecret': APP_SECRET,
-                'code': self.access_token,
-                'grantType': 'authorization_code'
-            }
-        )
-        header = {
-            'Content-Type': 'application/json'
-        }
-        response_data = requests.post(
-            url=url,
-            data=post_data,
-            headers=header
-        ).json()
-        print(response_data)
-        if response_data.get('accessToken') and response_data.get(
-                'refreshToken'):
-            self.user_token_dict = response_data
-            return response_data
-        else:
-            return None
-
     def get_user_info(self):
         """
         根据 SNS code 获取用户信息
