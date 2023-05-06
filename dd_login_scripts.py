@@ -16,16 +16,13 @@ import requests
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QDialog
 
 APP_KEY = 'dingqqjuy2zdbf7qd9v0'
 APP_SECRET = '2DeitGN2KKvEMixQL_CO4tc-t0VTJRrGsuwP9R5AdM0XSPpNUDqJ7g2NuIFxlEu5'
 AGENT_ID = '2568548056'
 TEM_ACCESS_TOKEN = '6a94830698473ea7bc919ae825801c87'
-QR_URL = 'https://oapi.dingtalk.com/connect/qrconnect?' \
-         'appid=dingqqjuy2zdbf7qd9v0&' \
-         'response_type=code&scope=snsapi_login&state=123&' \
-         'redirect_uri=http://127.0.0.1:80'
+QR_URL = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingqqjuy2zdbf7qd9v0&response_type=code&scope=snsapi_login&state=123&redirect_uri=http://127.0.0.1:80'
 
 
 class DDLogin:
@@ -33,15 +30,20 @@ class DDLogin:
     def __init__(self, sns_code):
         self.access_token = None    # 应用的 access_token
         self.sns_code = sns_code    # 用户的 sns_code
+        print('sns 赋值完成', self.sns_code)
         self.unionid = None     # 用户的 unionid，通过 sns_code 获取
         self.user_dd_id = None      # 用户的钉钉 ID，通过 unionid 获取
         self.is_login = False       # 是否登录成功
         self.user_name = None       # 登陆后赋值的 用户名
         self.user_shop = None       # 登陆后赋值的 用户所属店铺
         self.get_access_token()
+        print('获取 access_token 完成')
         self.get_unionid()
+        print('获取 unionid 完成')
         self.get_user_dd_id()
+        print('获取 user_dd_id 完成')
         self.login_by_user_dd_id()
+        print('登陆完成')
 
     def get_access_token(self):
         """
@@ -94,10 +96,7 @@ class DDLogin:
                                    sha256).digest()
         signature = base64.b64encode(signature_bytes).decode('utf-8')
         signature = urllib.parse.quote_plus(signature)
-        url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?' \
-              f'accessKey=dingqqjuy2zdbf7qd9v0&' \
-              f'timestamp={time_stamp}&' \
-              f'signature={signature}'
+        url = f'https://oapi.dingtalk.com/sns/getuserinfo_bycode?accessKey=dingqqjuy2zdbf7qd9v0&timestamp={time_stamp}&signature={signature}'
         post_data = json.dumps(
             {'tmp_auth_code': self.sns_code}
         )
@@ -166,7 +165,7 @@ class DDLogin:
         return True
 
 
-class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
     """
     拦截请求
     """
@@ -176,14 +175,14 @@ class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         url = info.requestUrl().toString()
         sns_code = re.findall(r'code=(.*?)&', url)
-        if not sns_code:
-            pass
-        dd_login_obj = DDLogin(sns_code[0])
-        # TODO
-        if dd_login_obj.is_login:
-            # 登录成功，关闭浏览器窗口
-            # TODO
-            pass
+        if sns_code:
+            sns_code = sns_code[0]
+            if len(sns_code) > 20:
+                dd_login_obj = DDLogin(sns_code)
+                if dd_login_obj.is_login:
+                    # 登录成功，关闭窗口，结束程序
+                    print('登录成功，关闭窗口，结束程序')
+
 
 
 if __name__ == '__main__':
@@ -191,7 +190,7 @@ if __name__ == '__main__':
     view = QWebEngineView()
     page = QWebEnginePage()
     page.setUrl(QUrl(QR_URL))
-    t = WebEngineUrlRequestInterceptor()
+    t = DingLoginRequestInterceptor()
     page.profile().setRequestInterceptor(t)
     view.setPage(page)
     view.resize(600, 400)
