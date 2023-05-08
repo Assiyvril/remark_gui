@@ -5,7 +5,7 @@ from PyQt5.QtCore import QUrl
 from dd_login_scripts import DingLoginRequestInterceptor, QR_URL
 
 
-class DingLoginGui(QDialog):
+class DingLoginGui(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 设置窗口标题
@@ -13,14 +13,4 @@ class DingLoginGui(QDialog):
         self.setFixedSize(600, 400)
         # 设置窗口图标
         self.setWindowIcon(QIcon('flags/dd_login.png'))
-        self.show()
         # 设置浏览器
-        self.browser = QWebEngineView()
-        self.page = QWebEnginePage()
-        self.page.setUrl(QUrl(QR_URL))
-        self.request_interceptor = DingLoginRequestInterceptor()
-        self.page.profile().setRequestInterceptor(self.request_interceptor)
-        self.browser.setPage(self.page)
-        self.browser.show()
-
-a = DingLoginGui()

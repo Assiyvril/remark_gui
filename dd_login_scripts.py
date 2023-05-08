@@ -13,7 +13,7 @@ import time
 from hashlib import sha256
 import urllib.parse
 import requests
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtWidgets import QApplication, QDialog
@@ -22,8 +22,8 @@ APP_KEY = 'dingqqjuy2zdbf7qd9v0'
 APP_SECRET = '2DeitGN2KKvEMixQL_CO4tc-t0VTJRrGsuwP9R5AdM0XSPpNUDqJ7g2NuIFxlEu5'
 AGENT_ID = '2568548056'
 TEM_ACCESS_TOKEN = '6a94830698473ea7bc919ae825801c87'
-QR_URL = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingqqjuy2zdbf7qd9v0&response_type=code&scope=snsapi_login&state=123&redirect_uri=http://127.0.0.1:80'
-
+QR_URL = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingqqjuy2zdbf7qd9v0&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=http://127.0.0.1:80'
+# QQ_URL = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingfxj522ilwmlympws&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=http://data.slpzb.com/rest/v1/account/dinglogin/?groupID=1&flatdata=1'
 
 class DDLogin:
 
@@ -37,15 +37,20 @@ class DDLogin:
         self.user_name = None       # 登陆后赋值的 用户名
         self.user_shop = None       # 登陆后赋值的 用户所属店铺
         self.get_access_token()
+        print('access_token 赋值完成', self.access_token)
         self.get_unionid()
+        print('unionid 赋值完成', self.unionid)
         self.get_user_dd_id()
+        print('user_dd_id 赋值完成', self.user_dd_id)
         self.login_by_user_dd_id()
+        print('login_by_user_dd_id 赋值完成', self.is_login)
 
     def get_access_token(self):
         """
         获取企业内部应用的accessToken
         :return:
         """
+        print('获取 access_token')
         url = 'https://api.dingtalk.com/v1.0/oauth2/accessToken/'
         post_data = json.dumps(
             {
@@ -62,6 +67,7 @@ class DDLogin:
             data=post_data,
             headers=header
         )
+        print('获取 access_token 的 response:', response.text)
         try:
             # {
             #   'expireIn': 7200,
@@ -133,6 +139,7 @@ class DDLogin:
             url=url,
             params=query_params
         )
+        print('获取 dd id 报错', response.text)
         try:
             response_data = response.json()
         except Exception:
@@ -165,12 +172,12 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
     """
     拦截请求
     """
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    login_success = pyqtSignal(bool)
 
     def interceptRequest(self, info):
         url = info.requestUrl().toString()
         sns_code = re.findall(r'code=(.*?)&', url)
+
         if sns_code:
             sns_code = sns_code[0]
             if len(sns_code) > 20:
@@ -178,7 +185,7 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
                 if dd_login_obj.is_login:
                     # 登录成功，关闭窗口，结束程序
                     print('登录成功，关闭窗口，结束程序')
-
+                    self.login_success.emit(True)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
