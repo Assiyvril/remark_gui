@@ -37,13 +37,9 @@ class DDLogin:
         self.user_name = None       # 登陆后赋值的 用户名
         self.user_shop = None       # 登陆后赋值的 用户所属店铺
         self.get_access_token()
-        print('获取 access_token 完成')
         self.get_unionid()
-        print('获取 unionid 完成')
         self.get_user_dd_id()
-        print('获取 user_dd_id 完成')
         self.login_by_user_dd_id()
-        print('登陆完成')
 
     def get_access_token(self):
         """
@@ -182,7 +178,6 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
                 if dd_login_obj.is_login:
                     # 登录成功，关闭窗口，结束程序
                     print('登录成功，关闭窗口，结束程序')
-
 
 
 if __name__ == '__main__':
