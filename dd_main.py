@@ -1,14 +1,10 @@
 import sys
-import time
-
 from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from PyQt5.QtWidgets import QApplication, QDialog, QWidget, QVBoxLayout
-
-from dd_login_gui import DingLoginGui
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout
 from dd_login_scripts import DingLoginRequestInterceptor, QR_URL
 from new_gui import MainGui
+
 
 class DDloginDialog(QDialog):
     def __init__(self, parent=None):
