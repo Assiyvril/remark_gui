@@ -31,6 +31,7 @@ if __name__ == '__main__':
     login_dialog = DDloginDialog()
     if login_dialog.exec_() == QDialog.Accepted:
         print('登录成功')
+        # TODO 登录成功，将用户信息传递给主窗口
         main_gui = MainGui()
         main_gui.setupUi(main_gui)
         main_gui.show()
