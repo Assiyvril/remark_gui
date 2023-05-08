@@ -7,6 +7,7 @@ name = "pip_conf_index_global"
 pyqt5 = "5.15.9"
 pyqt5-tools = "5.15.9.3.3"
 pyqtwebengine = "5.15.6"
+requests = "2.29.0"
 
 [dev-packages]
 
