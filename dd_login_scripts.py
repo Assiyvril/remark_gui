@@ -37,13 +37,9 @@ class DDLogin:
         self.user_name = None       # 登陆后赋值的 用户名
         self.user_shop = None       # 登陆后赋值的 用户所属店铺
         self.get_access_token()
-        print('access_token 赋值完成', self.access_token)
         self.get_unionid()
-        print('unionid 赋值完成', self.unionid)
         self.get_user_dd_id()
-        print('user_dd_id 赋值完成', self.user_dd_id)
         self.login_by_user_dd_id()
-        print('login_by_user_dd_id 赋值完成', self.is_login)
 
     def get_access_token(self):
         """
@@ -67,7 +63,6 @@ class DDLogin:
             data=post_data,
             headers=header
         )
-        print('获取 access_token 的 response:', response.text)
         try:
             # {
             #   'expireIn': 7200,
@@ -139,7 +134,6 @@ class DDLogin:
             url=url,
             params=query_params
         )
-        print('获取 dd id 报错', response.text)
         try:
             response_data = response.json()
         except Exception:
