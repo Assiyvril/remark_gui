@@ -40,11 +40,21 @@ class UserNameLoginDialog(QDialog, Ui_UserNameLogin):
                 'password': password
             }
         )
-        response = requests.post(
-            url=login_url,
-            data=post_data,
-            headers=headers
-        ).json()
+        try:
+            response = requests.post(
+                url=login_url,
+                data=post_data,
+                headers=headers
+            ).json()
+        except Exception as e:
+            QMessageBox.warning(
+                self, '错误', '登录出错，请检查网络链接或联系管理员！',
+                QMessageBox.Yes, QMessageBox.Yes
+            )
+            self.UserNameInput.setFocus()
+            self.PasswdInput.selectAll()
+            return False
+
         if response.get('code') == 200 and response.get('data').get('id'):
             self.user_name = response.get('data').get('username')
             self.user_shop = response.get('data').get('prefix').get('name')

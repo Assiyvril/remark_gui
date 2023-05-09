@@ -9,14 +9,13 @@ code file: first_demo.py
 import sys
 from PyQt5.QtWidgets import QApplication, QDialog
 from main_gui import MainGui
-import userlogin as login
+import user_login_dialog as login
 
 if __name__ == "__main__":
     # 创建应用
     window_application = QApplication(sys.argv)
     # 设置登录窗口
     login_ui = login.UserNameLoginDialog()
-
     # 校验是否验证通过
     if login_ui.exec_() == QDialog.Accepted:
 
