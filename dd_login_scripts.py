@@ -16,7 +16,7 @@ import requests
 from PyQt5.QtCore import QUrl, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtWidgets import QApplication
 
 APP_KEY = 'dingqqjuy2zdbf7qd9v0'
 APP_SECRET = '2DeitGN2KKvEMixQL_CO4tc-t0VTJRrGsuwP9R5AdM0XSPpNUDqJ7g2NuIFxlEu5'
@@ -186,6 +186,7 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
                     # 登录成功，关闭窗口，结束程序
                     print('登录成功，关闭窗口，结束程序')
                     self.login_success.emit(True)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
