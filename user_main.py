@@ -8,7 +8,7 @@ code file: first_demo.py
 
 import sys
 from PyQt5.QtWidgets import QApplication, QDialog
-from new_gui import MainGui
+from main_gui import MainGui
 import userlogin as login
 
 if __name__ == "__main__":

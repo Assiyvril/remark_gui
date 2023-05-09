@@ -3,7 +3,7 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout
 from dd_login_scripts import DingLoginRequestInterceptor, QR_URL
-from new_gui import MainGui
+from main_gui import MainGui
 
 
 class DDloginDialog(QDialog):

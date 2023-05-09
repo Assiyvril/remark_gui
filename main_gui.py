@@ -2,10 +2,10 @@
 # UI 界面文件，继承自Qt Designer生成的文件
 # 实现显示与逻辑分离
 from PyQt5 import QtCore
-from new_ui import Ui_mainWindow
+from main_ui import Ui_mainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut
 from PyQt5.QtGui import QKeySequence
-from scripts import ProcessOrder
+from order_scripts import ProcessOrder
 
 
 class MainGui(QMainWindow, Ui_mainWindow):
