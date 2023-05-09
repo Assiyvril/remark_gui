@@ -111,19 +111,16 @@ class MainGui(QMainWindow, Ui_mainWindow):
             if re.match(r'^\d{15,20}$|^\d{5,10}-\d{15,20}$', text):
                 # 实例化订单信息处理对象
                 self.order_process_obj = ProcessOrder(text)
-                # 校验是否为订单编号
-                order = self.order_process_obj.check_order()
-                if order:
-                    # 设置当前订单信息
-                    self.display_order_info(order)
-                    self.order_process_obj.shop_id = self.user_shop_id
-                    self.order_process_obj.user_name = self.user_name
-                    # 设置置顶
-                    self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
-                    self.window().show()
-                    # 取消置顶
-                    self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
-                    self.window().show()
+                # 设置当前订单信息
+                self.display_order_info(text)
+                self.order_process_obj.shop_id = self.user_shop_id
+                self.order_process_obj.user_name = self.user_name
+                # 设置置顶
+                self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+                self.window().show()
+                # 取消置顶
+                self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+                self.window().show()
 
             else:
                 pass

@@ -30,6 +30,7 @@ class DingLogin:
         self.legal = True     # 是否合法用户
         self.user_name = None       # 登陆后赋值的 用户名
         self.user_shop = None       # 登陆后赋值的 用户所属店铺
+        self.user_shop_id = None    # 登陆后赋值的 用户所属店铺id
 
         self.login()
 
@@ -57,6 +58,10 @@ class DingLogin:
             self.user_shop = response.get('data').get('prefix').get('name')
         except Exception:
             self.user_shop = '未获取到店铺名'
+        try:
+            self.user_shop_id = response.get('data').get('prefix').get('id')
+        except Exception:
+            self.user_shop_id = '未获取到店铺id'
         return True
 
 
