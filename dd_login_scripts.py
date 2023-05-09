@@ -225,6 +225,9 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
                 self.ding_login_obj = DingLogin(sns_code)
                 self.login_event.emit(True)
                 # login 事件触发后，将 ding_login_obj 传递给主窗口
+        # 不让真正跳转，若是以 https://web.slpzb.com/ 开头的请求，都拦截
+        if url.startswith('https://web.slpzb.com/'):
+            info.block(True)
 
 
 if __name__ == '__main__':

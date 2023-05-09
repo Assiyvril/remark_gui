@@ -42,7 +42,6 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                time.sleep(8)
                 exit(1)
             elif not login_obj.have_response:
                 print('未收到服务器响应')
@@ -53,7 +52,6 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                time.sleep(8)
                 exit(1)
             elif not login_obj.legal:
                 print('登录对象不合法')
@@ -64,7 +62,6 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                time.sleep(8)
                 exit(1)
             elif not login_obj.is_login:
                 print('登录失败')
@@ -75,7 +72,6 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                time.sleep(8)
                 exit(1)
             else:
                 self.user_name = login_obj.user_name
@@ -101,4 +97,5 @@ if __name__ == '__main__':
         print('登录失败')
         # 结束进程
         exit(1)
+        sys.exit(window_application.exec_())
 
