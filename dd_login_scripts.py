@@ -18,11 +18,14 @@ from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtWidgets import QApplication
 
-APP_KEY = 'dingqqjuy2zdbf7qd9v0'
+# APP_KEY = 'dingqqjuy2zdbf7qd9v0'
+APP_KEY = 'dingj2boitttylsscgyd'   # web 前端 web.slpzb.com
 APP_SECRET = '2DeitGN2KKvEMixQL_CO4tc-t0VTJRrGsuwP9R5AdM0XSPpNUDqJ7g2NuIFxlEu5'
-REDIRECT_URI = 'http://127.0.0.1:80'
+# REDIRECT_URI = 'http://127.0.0.1:80'
+REDIRECT_URI = 'https://web.slpzb.com/#/login'
 QR_URL = f'https://oapi.dingtalk.com/connect/qrconnect?appid={APP_KEY}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri={REDIRECT_URI}'
 # QQ_URL = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingfxj522ilwmlympws&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=http://data.slpzb.com/rest/v1/account/dinglogin/?groupID=1&flatdata=1'
+
 
 class DDLogin:
 
@@ -160,11 +163,57 @@ class DDLogin:
         return True
 
 
+class DingLogin:
+    """
+    使用钉钉 sns 码登录
+    抓取到 sns 码后，将 sns 码发给服务器
+    """
+    def __init__(self, sns_code):
+        self.sns_code = sns_code
+        self.is_login = False   # 是否登录成功
+        self.have_response = False      # 是否有响应, 若没有响应则应检查网络
+        self.legal = True     # 是否合法用户
+        self.user_name = None       # 登陆后赋值的 用户名
+        self.user_shop = None       # 登陆后赋值的 用户所属店铺
+
+        self.login()
+
+    def login(self):
+        login_url = f'https://web.slpzb.com/rest/v1/account/dinglogin/?code={self.sns_code}&state=STATE&flatdata=2&myshop=shilipai'
+        try:
+            response = requests.get(login_url).json()
+        except Exception:
+            response = None
+        if not response:
+            return None
+        if response.get('code') == 200 and response.get('msg') != 'success':
+            self.legal = False
+            self.have_response = True
+            return None
+        if response.get('code') == 200 and response.get('msg') == 'success':
+            self.is_login = True
+            self.have_response = True
+            self.legal = True
+        try:
+            self.user_name = response.get('data').get('username')
+        except Exception:
+            self.user_name = '未获取到用户名'
+        try:
+            self.user_shop = response.get('data').get('prefix').get('name')
+        except Exception:
+            self.user_shop = '未获取到店铺名'
+        return True
+
+
 class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
     """
     拦截请求
     """
-    login_success = pyqtSignal(bool)
+    login_event = pyqtSignal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ding_login_obj = None
 
     def interceptRequest(self, info):
         url = info.requestUrl().toString()
@@ -173,11 +222,9 @@ class DingLoginRequestInterceptor(QWebEngineUrlRequestInterceptor):
         if sns_code:
             sns_code = sns_code[0]
             if len(sns_code) > 20:
-                dd_login_obj = DDLogin(sns_code)
-                if dd_login_obj.is_login:
-                    # 登录成功，关闭窗口，结束程序
-                    print('登录成功，关闭窗口，结束程序')
-                    self.login_success.emit(True)
+                self.ding_login_obj = DingLogin(sns_code)
+                self.login_event.emit(True)
+                # login 事件触发后，将 ding_login_obj 传递给主窗口
 
 
 if __name__ == '__main__':
