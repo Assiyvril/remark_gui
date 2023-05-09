@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # UI 界面文件，继承自Qt Designer生成的文件
 # 实现显示与逻辑分离
+import re
+
 from PyQt5 import QtCore
 from main_ui import Ui_mainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut
@@ -102,30 +104,29 @@ class MainGui(QMainWindow, Ui_mainWindow):
             flag_dict[order_flag].setChecked(True)
 
     def clipboard_changed(self):
-        text = self.clipboard.text()
+
         # 先校验内容是否为文本，不能为图片等
-        if not self.clipboard.mimeData().hasText():
-            pass
+        if self.clipboard.mimeData().hasText():
+            text = self.clipboard.text().strip()
+            if re.match(r'^\d{15,20}$|^\d{5,10}-\d{15,20}$', text):
+                # 实例化订单信息处理对象
+                self.order_process_obj = ProcessOrder(text)
+                # 校验是否为订单编号
+                order = self.order_process_obj.check_order()
+                if order:
+                    # 设置当前订单信息
+                    self.display_order_info(order)
+                    self.order_process_obj.shop_id = self.user_shop_id
+                    self.order_process_obj.user_name = self.user_name
+                    # 设置置顶
+                    self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+                    self.window().show()
+                    # 取消置顶
+                    self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+                    self.window().show()
 
-        # 实例化订单信息处理对象
-        self.order_process_obj = ProcessOrder(text)
-        # 校验是否为订单编号
-        order = self.order_process_obj.check_order()
-        if order:
-
-            # 设置当前订单信息
-            self.display_order_info(order)
-            self.order_process_obj.shop_id = self.user_shop_id
-            self.order_process_obj.user_name = self.user_name
-            # 设置置顶
-            self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
-            self.window().show()
-            # 取消置顶
-            self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
-            self.window().show()
-
-        else:
-            pass
+            else:
+                pass
 
     def get_bic(self):
         """
@@ -157,8 +158,9 @@ class MainGui(QMainWindow, Ui_mainWindow):
         if self.order_process_obj is None:
             self.show_message('请先复制一个订单编号, 才能提交备注')
             return None
+
         # 获取输入的备注信息
-        remark = self.RemarkTextInput.toPlainText()
+        remark = str(self.RemarkTextInput.toPlainText())
         # 校验备注信息
         if not remark:
             self.show_message('不能提交空备注')

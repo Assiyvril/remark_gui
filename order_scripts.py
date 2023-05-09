@@ -115,6 +115,18 @@ class ProcessOrder:
         return bic_code
 
     def submit_remark(self, remark, flag_num_str):
+        if not self.true_order:
+            data = {
+                'error': True,
+                'msg': 'Bug 提交失败, 订单处理对象缺少订单编号'
+            }
+            return data
+        if not self.user_name:
+            data = {
+                'error': True,
+                'msg': 'Bug 提交失败, 订单处理对象缺少用户名'
+            }
+            return data
         url = 'https://web.slpzb.com/rest/v1/douyin_up_memo/'
         headers = {
             'Content-Type': 'application/json'
@@ -158,5 +170,4 @@ class ProcessOrder:
             'order_be_changed': order_be_changed,
             'flag_changed_text': FLAG_DICT.get(FLAG_DICT.get(flag_changed))
         }
-        print('response_data\n', response_data)
         return data
