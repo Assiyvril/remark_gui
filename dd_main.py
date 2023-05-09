@@ -1,6 +1,4 @@
 import sys
-import time
-
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QMessageBox
@@ -11,6 +9,7 @@ from main_gui import MainGui
 class DDloginDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setWindowTitle('备注修改器-钉钉扫码登录')
         self.user_name = None
         self.user_shop = None
         self.webview = QWebEngineView()
