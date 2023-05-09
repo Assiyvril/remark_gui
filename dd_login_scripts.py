@@ -20,9 +20,8 @@ from PyQt5.QtWidgets import QApplication
 
 APP_KEY = 'dingqqjuy2zdbf7qd9v0'
 APP_SECRET = '2DeitGN2KKvEMixQL_CO4tc-t0VTJRrGsuwP9R5AdM0XSPpNUDqJ7g2NuIFxlEu5'
-AGENT_ID = '2568548056'
-TEM_ACCESS_TOKEN = '6a94830698473ea7bc919ae825801c87'
-QR_URL = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingqqjuy2zdbf7qd9v0&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=http://127.0.0.1:80'
+REDIRECT_URI = 'http://127.0.0.1:80'
+QR_URL = f'https://oapi.dingtalk.com/connect/qrconnect?appid={APP_KEY}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri={REDIRECT_URI}'
 # QQ_URL = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingfxj522ilwmlympws&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=http://data.slpzb.com/rest/v1/account/dinglogin/?groupID=1&flatdata=1'
 
 class DDLogin:
@@ -30,7 +29,6 @@ class DDLogin:
     def __init__(self, sns_code):
         self.access_token = None    # 应用的 access_token
         self.sns_code = sns_code    # 用户的 sns_code
-        print('sns 赋值完成', self.sns_code)
         self.unionid = None     # 用户的 unionid，通过 sns_code 获取
         self.user_dd_id = None      # 用户的钉钉 ID，通过 unionid 获取
         self.is_login = False       # 是否登录成功
