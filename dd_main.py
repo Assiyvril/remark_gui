@@ -30,11 +30,9 @@ class DDloginDialog(QDialog):
 
     def deal_login_event(self, is_trigger):
         if is_trigger:
-            print('登录事件触发')
             login_obj = self.request_interceptor.ding_login_obj
             if not login_obj:
                 # 弹出提示框，提示用户登录失败
-                print('登录对象为空')
                 QMessageBox.warning(
                     self,
                     '登录出错',
@@ -42,9 +40,8 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                exit(1)
+                sys.exit(1)
             elif not login_obj.have_response:
-                print('未收到服务器响应')
                 QMessageBox.warning(
                     self,
                     '登录出错',
@@ -52,9 +49,8 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                exit(1)
+                sys.exit(1)
             elif not login_obj.legal:
-                print('登录对象不合法')
                 QMessageBox.warning(
                     self,
                     '登录出错',
@@ -62,9 +58,8 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                exit(1)
+                sys.exit(1)
             elif not login_obj.is_login:
-                print('登录失败')
                 QMessageBox.warning(
                     self,
                     '登录出错',
@@ -72,20 +67,19 @@ class DDloginDialog(QDialog):
                     QMessageBox.Ok
                 )
                 self.reject()
-                exit(1)
+                sys.exit(1)
             else:
                 self.user_name = login_obj.user_name
                 self.user_shop = login_obj.user_shop
                 self.user_shop_id = login_obj.user_shop_id
-                print('信号处理--登录成功')
                 self.accept()
+                sys.exit(0)
 
 
 if __name__ == '__main__':
     window_application = QApplication(sys.argv)
     login_dialog = DDloginDialog()
     if login_dialog.exec_() == QDialog.Accepted:
-        print('登录成功')
         main_gui = MainGui()
         main_gui.setupUi(main_gui)
         main_gui.CurrentUserLabel.setText('当前用户: ' + login_dialog.user_name)
@@ -98,8 +92,7 @@ if __name__ == '__main__':
         main_gui.set_button()
         sys.exit(window_application.exec_())
     else:
-        print('登录失败')
         # 结束进程
-        exit(1)
-        sys.exit(window_application.exec_())
+        # sys.exit(window_application.exec_())
+        sys.exit(0)
 
