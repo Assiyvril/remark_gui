@@ -23,12 +23,8 @@ class BicCode:
         self.cookie = cookie
         self.user_shop_id = user_shop_id
         self.pdf_file_bytes = self.get_pdf_file()
-        print('下载 pdf 文件完成')
         self.result_bic_list = self.parse_pdf_file()
-        print('解析 pdf 文件完成', self.result_bic_list)
         self.upload_bic_result = self.upload_bic_code()
-        print('上传 BIC 码完成')
-        print('BIC 对象初始化完成')
 
     def get_pdf_file(self):
         """
@@ -36,7 +32,7 @@ class BicCode:
         :return:
         """
         if not self.cookie:
-            print('下载 bic pdf 文件 cookie 为空')
+            print('下载 bic pdf 文件， cookie 为空')
             return None
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',

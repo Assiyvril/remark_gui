@@ -132,10 +132,12 @@ class MainGui(QMainWindow, Ui_mainWindow):
         """
         获取 BIC 码
         方法在 ProcessOrder 类中，目前返回的测试数据
-        TODO 需要后期用爬虫取得，下个版本再做
         :return:
         """
         # 获取 BIC 码
+        if not self.user_shop_id:
+            self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
+            return
         msg = '请在弹出的浏览器窗口中登录,' \
               '登录完成后进入 "订单管理 -> QIC 管理 -> QIC 质检" 页面, ' \
               '浏览器抓取到 Cookie 后会自动关闭, ' \
