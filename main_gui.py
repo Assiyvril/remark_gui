@@ -133,13 +133,10 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
-        if self.order_process_obj is None:
-            self.show_message('请先复制一个订单编号, 才能获取 BIC')
-            return None
-        bic = self.order_process_obj.get_bic()
-        # 显示 BIC 码
-        self.BicLabel.setText('BIC 码：' + bic)
-
+        self.show_message(
+            '用法：请在弹出的浏览器窗口中登录，登录完成后进入 '
+            '"订单管理 -> QIC 管理 -> QIC 质检" 页面, 浏览器抓取到 Cookie 后会自动关闭'
+        )
         return None
 
     def clear_remark(self):
