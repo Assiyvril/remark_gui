@@ -122,7 +122,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
                 self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
                 self.window().show()
                 # 取消置顶
-                self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+                self.window().setWindowFlag(QtCore.Qt.WindowStaysOnTopHint,
+                                            False)
                 self.window().show()
 
             else:
@@ -151,10 +152,27 @@ class MainGui(QMainWindow, Ui_mainWindow):
                 cookie=cookie, user_shop_id=self.user_shop_id
             )
             if bic_code_obj.upload_bic_result:
-                self.show_message('BIC 码上传成功')
-                self.BicLabel.setText('已获取了 100 条 BIC 码，并上传成功')
+                bic_count = len(bic_code_obj.result_bic_list)
+                info_msg = f'获取到 {bic_count} 条 BIC 码' + \
+                           f'下载过程 {bic_code_obj.get_pdf_signal_str}' + \
+                           f'解析过程 {bic_code_obj.parse_pdf_signal_str}' + \
+                           f'上传过程 {bic_code_obj.upload_bic_signal_str}'
+                QMessageBox.information(
+                    self, 'BIC 码获取成功，已上传到数据库, 以下是相关信息：',
+                    info_msg
+                )
+                self.BicLabel.setText(
+                    f'已获取了{bic_count}条 BIC 码，并上传成功')
             else:
-                self.show_message('BIC 码上传失败')
+                bic_count = len(bic_code_obj.result_bic_list)
+                info_msg = f'获取到 {bic_count} 条 BIC 码' + \
+                            f'下载过程 {bic_code_obj.get_pdf_signal_str}' + \
+                            f'解析过程 {bic_code_obj.parse_pdf_signal_str}' + \
+                            f'上传过程 {bic_code_obj.upload_bic_signal_str}'
+                QMessageBox.information(
+                    self, 'BIC 码获取失败，以下是相关信息：',
+                    info_msg
+                )
                 self.BicLabel.setText('BIC 码获取失败')
 
         bic_web_view = BicWebView()
