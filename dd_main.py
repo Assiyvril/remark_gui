@@ -73,7 +73,7 @@ class DDloginDialog(QDialog):
                 self.user_shop = login_obj.user_shop
                 self.user_shop_id = login_obj.user_shop_id
                 self.accept()
-                sys.exit(0)
+                # sys.exit(0)
 
 
 if __name__ == '__main__':
