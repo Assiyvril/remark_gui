@@ -4,6 +4,9 @@
 import re
 
 from PyQt5 import QtCore
+
+from bic.bic_gui import BicWebView
+from bic.get_bic import BicCode
 from main_ui import Ui_mainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut
 from PyQt5.QtGui import QKeySequence
@@ -133,10 +136,29 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
-        self.show_message(
-            '用法：请在弹出的浏览器窗口中登录，登录完成后进入 '
-            '"订单管理 -> QIC 管理 -> QIC 质检" 页面, 浏览器抓取到 Cookie 后会自动关闭'
-        )
+        msg = '请在弹出的浏览器窗口中登录,' \
+              '登录完成后进入 "订单管理 -> QIC 管理 -> QIC 质检" 页面, ' \
+              '浏览器抓取到 Cookie 后会自动关闭, ' \
+              '在抓取完成之前请不要进行其它操作'
+        QMessageBox.information(self, '用法', msg)
+
+        def get_bic_by_cookie(cookie):
+            bic_web_view.close()
+            print('get_bic 方法已收到 cookie')
+            bic_code_obj = BicCode(
+                cookie=cookie, user_shop_id=self.user_shop_id
+            )
+            if bic_code_obj.upload_bic_result:
+                self.show_message('BIC 码上传成功')
+                self.BicLabel.setText('已获取了 100 条 BIC 码，并上传成功')
+            else:
+                self.show_message('BIC 码上传失败')
+                self.BicLabel.setText('BIC 码获取失败')
+
+        bic_web_view = BicWebView()
+        bic_web_view.get_full_cookie_signal.connect(get_bic_by_cookie)
+        bic_web_view.show()
+
         return None
 
     def clear_remark(self):
