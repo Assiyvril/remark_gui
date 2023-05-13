@@ -153,10 +153,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
             )
             if bic_code_obj.upload_bic_result:
                 bic_count = len(bic_code_obj.result_bic_list)
-                info_msg = f'获取到 {bic_count} 条 BIC 码' + \
-                           f'下载过程 {bic_code_obj.get_pdf_signal_str}' + \
-                           f'解析过程 {bic_code_obj.parse_pdf_signal_str}' + \
-                           f'上传过程 {bic_code_obj.upload_bic_signal_str}'
+                info_msg = f'获取到 {bic_count} 条 BIC 码，下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
                 QMessageBox.information(
                     self, 'BIC 码获取成功，已上传到数据库, 以下是相关信息：',
                     info_msg
@@ -165,10 +162,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
                     f'已获取了{bic_count}条 BIC 码，并上传成功')
             else:
                 bic_count = len(bic_code_obj.result_bic_list)
-                info_msg = f'获取到 {bic_count} 条 BIC 码' + \
-                            f'下载过程 {bic_code_obj.get_pdf_signal_str}' + \
-                            f'解析过程 {bic_code_obj.parse_pdf_signal_str}' + \
-                            f'上传过程 {bic_code_obj.upload_bic_signal_str}'
+                info_msg = f'获取到 {bic_count} 条 BIC 码。下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
                 QMessageBox.information(
                     self, 'BIC 码获取失败，以下是相关信息：',
                     info_msg
