@@ -7,6 +7,7 @@ import time
 from PyQt5 import QtCore
 
 from bic.bic_gui import BicWebView
+from bic.bic_thread import GetBicThread
 from bic.get_bic import BicCode
 from main_ui_0515 import Ui_mainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, \
@@ -141,9 +142,9 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
-        # if not self.user_shop_id:
-        #     self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
-        #     return
+        if not self.user_shop_id:
+            self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
+            return
         msg = '请在弹出的浏览器窗口中登录,' \
               '登录完成后进入 "订单管理 -> QIC 管理 -> QIC 质检" 页面, ' \
               '浏览器抓取到 Cookie 后会自动关闭, ' \
@@ -156,36 +157,63 @@ class MainGui(QMainWindow, Ui_mainWindow):
             return None
         # 计算循环次数， count / 100 向下取整
         loop_count = count // 100
-        print(f'循环次数：{loop_count}')
+
+        self.statusbar.showMessage('正在获取 BIC 码...')
+        # 禁用按钮
+        self.GetBicButton.setChecked(True)
+        self.GetBicButton.setDisabled(True)
+        self.QuitButton.setDisabled(True)
+        self.SubmitRemarkButton.setDisabled(True)
+        self.ClearRemarkButton.setDisabled(True)
 
         def get_bic_by_cookie(cookie):
+            print('main_gui get_bic_by_cookie 执行')
             bic_web_view.close()
-            for times in range(loop_count):
-                bic_code_obj = BicCode(
-                    cookie=cookie, user_shop_id=self.user_shop_id
-                )
-                if bic_code_obj.upload_bic_result:
-                    bic_count = len(bic_code_obj.result_bic_list)
-                    self.BicLabel.setText(
-                        f'第 {times + 1} 次循环：已获取了{bic_count}条 BIC 码，并上传成功'
-                    )
-                    self.statusbar.showMessage(
-                        f'第 {times + 1} 次循环完成，休眠 10 秒')
-                    time.sleep(10)
-                else:
-                    bic_count = len(bic_code_obj.result_bic_list)
-                    info_msg = f'第 {times + 1} 次循环出错，获取到 {bic_count} 条 BIC 码。下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
-                    self.BicLabel.setText(info_msg)
-                    self.statusbar.showMessage(
-                        f'第 {times + 1} 次循环完成，休眠 10 秒')
-                    time.sleep(10)
-
-            # 循环结束后，状态栏显示信息
-            self.statusbar.showMessage('BIC 码获取完成')
+            self.get_bic_thread = GetBicThread(
+                cookie_str=cookie,
+                user_shop_id=self.user_shop_id,
+                loop_count=loop_count,
+            )
+            self.get_bic_thread.bic_process_signal.connect(self.show_process)
+            self.get_bic_thread.bic_finish_signal.connect(self.bic_finish)
+            self.get_bic_thread.start()
 
         bic_web_view = BicWebView()
         bic_web_view.get_full_cookie_signal.connect(get_bic_by_cookie)
         bic_web_view.show()
+        return None
+
+    def show_process(self, process):
+        """
+        显示进度
+        :param process:
+        :return:
+        """
+        self.BicLabel.setText(process)
+        return None
+
+    def bic_finish(self, result_bool, amount):
+        """
+        获取 BIC 码完成
+        :param bic_list:
+        :return:
+        """
+        if result_bool:
+            info = f'获取 BIC 完成, 共获取到 {amount} 个 BIC 码'
+            self.BicLabel.setText(info)
+            self.statusbar.showMessage('BIC 码获取圆满完成')
+        else:
+            info = f'获取 BIC 完成，但中间出现错误，获取到的数量为 {amount}'
+            self.BicLabel.setText(info)
+            self.statusbar.showMessage('BIC 码获取完成，但是程中出现错误')
+
+        # 启用按钮
+        self.GetBicButton.setChecked(False)
+        self.GetBicButton.setDisabled(False)
+        self.QuitButton.setDisabled(False)
+        self.SubmitRemarkButton.setDisabled(False)
+        self.ClearRemarkButton.setDisabled(False)
+        QMessageBox.information(self, '提示', info)
         return None
 
     def clear_remark(self):
