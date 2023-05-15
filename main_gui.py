@@ -2,13 +2,15 @@
 # UI 界面文件，继承自Qt Designer生成的文件
 # 实现显示与逻辑分离
 import re
+import time
 
 from PyQt5 import QtCore
 
 from bic.bic_gui import BicWebView
 from bic.get_bic import BicCode
-from main_ui import Ui_mainWindow
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut
+from main_ui_0515 import Ui_mainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, \
+    QInputDialog
 from PyQt5.QtGui import QKeySequence
 from order_scripts import ProcessOrder
 
@@ -26,6 +28,8 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.shortcut = QShortcut(QKeySequence("Alt+S"), self)
         self.shortcut.activated.connect(self.submit_remark)
         # 暂不展示订单信息，只展示已有的备注和 flag
+
+        self.input_count_dialog = QInputDialog(self)
 
         # 保存登录的当前用户信息
         self.user_name = None
@@ -105,6 +109,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
                 'purple': self.FlagPurple
             }
             flag_dict[order_flag].setChecked(True)
+        self.statusbar.showMessage('订单信息获取成功')
 
     def clipboard_changed(self):
 
@@ -136,43 +141,51 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
-        if not self.user_shop_id:
-            self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
-            return
+        # if not self.user_shop_id:
+        #     self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
+        #     return
         msg = '请在弹出的浏览器窗口中登录,' \
               '登录完成后进入 "订单管理 -> QIC 管理 -> QIC 质检" 页面, ' \
               '浏览器抓取到 Cookie 后会自动关闭, ' \
               '在抓取完成之前请不要进行其它操作'
         QMessageBox.information(self, '用法', msg)
 
+        count = self.BicCountInput.value()
+        if not count:
+            QMessageBox.warning(self, '警告', '请先输入要获取的 BIC 数量')
+            return None
+        # 计算循环次数， count / 100 向下取整
+        loop_count = count // 100
+        print(f'循环次数：{loop_count}')
+
         def get_bic_by_cookie(cookie):
             bic_web_view.close()
-            print('get_bic 方法已收到 cookie')
-            bic_code_obj = BicCode(
-                cookie=cookie, user_shop_id=self.user_shop_id
-            )
-            if bic_code_obj.upload_bic_result:
-                bic_count = len(bic_code_obj.result_bic_list)
-                info_msg = f'获取到 {bic_count} 条 BIC 码，下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
-                QMessageBox.information(
-                    self, 'BIC 码获取成功，已上传到数据库, 以下是相关信息：',
-                    info_msg
+            for times in range(loop_count):
+                bic_code_obj = BicCode(
+                    cookie=cookie, user_shop_id=self.user_shop_id
                 )
-                self.BicLabel.setText(
-                    f'已获取了{bic_count}条 BIC 码，并上传成功')
-            else:
-                bic_count = len(bic_code_obj.result_bic_list)
-                info_msg = f'获取到 {bic_count} 条 BIC 码。下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
-                QMessageBox.information(
-                    self, 'BIC 码获取失败，以下是相关信息：',
-                    info_msg
-                )
-                self.BicLabel.setText('BIC 码获取失败')
+                if bic_code_obj.upload_bic_result:
+                    bic_count = len(bic_code_obj.result_bic_list)
+                    self.BicLabel.setText(
+                        f'第 {times + 1} 次循环：已获取了{bic_count}条 BIC 码，并上传成功'
+                    )
+                    self.statusbar.showMessage(
+                        f'第 {times + 1} 次循环完成，休眠 10 秒')
+                    time.sleep(10)
+                else:
+                    bic_count = len(bic_code_obj.result_bic_list)
+                    info_msg = f'第 {times + 1} 次循环出错，获取到 {bic_count} 条 BIC 码。下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}'
+                    self.BicLabel.setText(info_msg)
+                    self.statusbar.showMessage(
+                        f'第 {times + 1} 次循环完成，休眠 10 秒')
+                    time.sleep(10)
+
+            # 循环结束后，状态栏显示信息
+            self.statusbar.showMessage('BIC 码获取完成')
 
         bic_web_view = BicWebView()
         bic_web_view.get_full_cookie_signal.connect(get_bic_by_cookie)
         bic_web_view.show()
-
         return None
 
     def clear_remark(self):

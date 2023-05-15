@@ -87,6 +87,7 @@ if __name__ == '__main__':
         main_gui.user_name = login_dialog.user_name
         main_gui.user_shop = login_dialog.user_shop
         main_gui.user_shop_id = login_dialog.user_shop_id
+        main_gui.statusbar.showMessage('登录成功, 开始监听剪贴板')
         main_gui.show()
         main_gui.listen_clipboard()
         main_gui.set_button()
