@@ -138,7 +138,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
-        self.user_shop_id = 142
+
         if not self.user_shop_id:
             self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
             return
@@ -155,14 +155,18 @@ class MainGui(QMainWindow, Ui_mainWindow):
         # 计算循环次数， count / 100 向下取整
         loop_count = count // 100
 
-        self.statusbar.showMessage('正在获取 BIC 码...')
+        self.statusbar.showMessage('正在获取 BIC ...')
         # 禁用按钮
         self.GetBicButton.setChecked(True)
         self.GetBicButton.setDisabled(True)
         self.QuitButton.setDisabled(True)
         self.SubmitRemarkButton.setDisabled(True)
         self.ClearRemarkButton.setDisabled(True)
-
+        self.FlagRed.setDisabled(True)
+        # 这个线程需要优化
+        # TODO 测试封装的 ChromeDriver
+        # TODO 检测 已开启的Driver被关闭的情况
+        # 有空再说
         self.get_bic_thread = GetBicThread(
             user_shop_id=self.user_shop_id,
             loop_count=loop_count,
