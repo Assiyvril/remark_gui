@@ -2,13 +2,8 @@
 # UI 界面文件，继承自Qt Designer生成的文件
 # 实现显示与逻辑分离
 import re
-import time
-
 from PyQt5 import QtCore
-
-from bic.bic_gui import BicWebView
 from bic.bic_thread import GetBicThread
-from bic.get_bic import BicCode
 from main_ui_0515 import Ui_mainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, \
     QInputDialog
@@ -21,6 +16,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
     def __init__(self):
         super().__init__()
         # 定义剪贴板对象
+        self.get_bic_thread = None
         self.clipboard = QApplication.clipboard()
         # 订单信息处理对象
         self.order_process_obj = None
@@ -142,6 +138,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         :return:
         """
         # 获取 BIC 码
+        self.user_shop_id = 142
         if not self.user_shop_id:
             self.show_message('当前用户没有所属店铺，不能使用 BIC 码功能')
             return
@@ -166,24 +163,17 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.SubmitRemarkButton.setDisabled(True)
         self.ClearRemarkButton.setDisabled(True)
 
-        def get_bic_by_cookie(cookie):
-            print('main_gui get_bic_by_cookie 执行')
-            bic_web_view.close()
-            self.get_bic_thread = GetBicThread(
-                cookie_str=cookie,
-                user_shop_id=self.user_shop_id,
-                loop_count=loop_count,
-            )
-            self.get_bic_thread.bic_process_signal.connect(self.show_process)
-            self.get_bic_thread.bic_finish_signal.connect(self.bic_finish)
-            self.get_bic_thread.start()
+        self.get_bic_thread = GetBicThread(
+            user_shop_id=self.user_shop_id,
+            loop_count=loop_count,
+        )
+        self.get_bic_thread.start()
 
-        bic_web_view = BicWebView()
-        bic_web_view.get_full_cookie_signal.connect(get_bic_by_cookie)
-        bic_web_view.show()
-        return None
+        self.get_bic_thread.bic_process_signal.connect(self.show_get_bic_process)
+        self.get_bic_thread.bic_finish_signal.connect(self.bic_finish)
 
-    def show_process(self, process):
+
+    def show_get_bic_process(self, process):
         """
         显示进度
         :param process:
