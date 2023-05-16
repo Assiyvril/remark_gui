@@ -1,5 +1,6 @@
 [[source]]
 url = "https://pypi.Python.org/simple/"
+proxy = "socks5://127.0.0.1:10808"
 verify_ssl = true
 name = "pip_conf_index_global"
 
@@ -9,7 +10,9 @@ pyqt5-tools = "5.15.9.3.3"
 pyqtwebengine = "5.15.6"
 requests = "2.29.0"
 pyinstaller = "5.10.1"
-pdfplumber = "*"
+pdfplumber = "0.9.0"
+selenium = "4.9.1"
+selenium-wire = "5.1.0"
 
 [dev-packages]
 
