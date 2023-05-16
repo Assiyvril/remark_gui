@@ -1,6 +1,5 @@
 import json
 import re
-
 import requests
 import filetype
 import pdfplumber
@@ -19,8 +18,8 @@ class BicCode:
     4，提示用户上传成功
     """
 
-    def __init__(self, cookie: str, user_shop_id: int):
-        self.cookie = cookie
+    def __init__(self, cookie_str, user_shop_id: int):
+        self.cookie = cookie_str
         self.user_shop_id = user_shop_id
         self.pdf_file_bytes = self.get_pdf_file()
         self.result_bic_list = self.parse_pdf_file()
@@ -28,6 +27,7 @@ class BicCode:
         self.get_pdf_signal_str = ''
         self.parse_pdf_signal_str = ''
         self.upload_bic_signal_str = ''
+
 
     def get_pdf_file(self):
         """
@@ -127,4 +127,5 @@ class BicCode:
             return False
 
 
-
+if __name__ == '__main__':
+    get_bic_obj = BicCode(user_shop_id=142)
