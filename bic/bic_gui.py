@@ -30,11 +30,13 @@ class BicWebView(QWebEngineView):
         self.cookie_str = None
 
     def onCookieAdd(self, cookie):
+
         name = cookie.name().data().decode('utf-8')
         value = cookie.value().data().decode('utf-8')
         self.cookie[name] = value
 
     def on_url_changed(self, url):
+        print('url changed')
         if '/bic/order/printer' in url.toString():
             print('已登陆成功并到达 BIC 码页面')
 
