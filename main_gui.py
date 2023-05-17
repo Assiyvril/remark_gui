@@ -175,7 +175,22 @@ class MainGui(QMainWindow, Ui_mainWindow):
 
         self.get_bic_thread.bic_process_signal.connect(self.show_get_bic_process)
         self.get_bic_thread.bic_finish_signal.connect(self.bic_finish)
+        self.get_bic_thread.browser_killed_signal.connect(self.browser_killed)
 
+    def browser_killed(self):
+        """
+        浏览器被关闭
+        """
+        info = '登录未完成，但浏览器已关闭，请重新点击获取 BIC 按钮'
+        QMessageBox.information(self, '浏览器被意外关闭', info)
+        self.BicLabel.setText('浏览器被意外关闭, 请重试')
+        self.statusbar.showMessage('浏览器被意外关闭, 请重试')
+        self.GetBicButton.setChecked(False)
+        self.GetBicButton.setDisabled(False)
+        self.QuitButton.setDisabled(False)
+        self.SubmitRemarkButton.setDisabled(False)
+        self.ClearRemarkButton.setDisabled(False)
+        return None
 
     def show_get_bic_process(self, process):
         """
