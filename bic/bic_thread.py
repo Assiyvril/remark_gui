@@ -1,9 +1,8 @@
 import time
 from win32process import CREATE_NO_WINDOW
-
 from PyQt5.QtCore import QThread, pyqtSignal
-from selenium.common import TimeoutException
-from seleniumwire import webdriver
+from selenium import webdriver
+from selenium.common import NoSuchWindowException, TimeoutException
 
 from .get_bic import BicCode
 
@@ -32,30 +31,36 @@ class GetBicThread(QThread):
         self.user_shop_id = user_shop_id
         self.loop_count = loop_count
         self.amount = 0
-        print('GetBicThread 初始化完成')
-        print(f'user_shop_id: {user_shop_id}')
-        print(f'loop_count: {loop_count}')
 
     def get_cookie(self):
         URL = 'https://fxg.jinritemai.com/'
+        self.web_driver.implicitly_wait(200)
         self.web_driver.get(URL)
-        if self.web_driver.service.process:
-            self.bic_process_signal.emit('浏览器启动成功, 请在100秒内登录')
-        else:
-            self.bic_process_signal.emit('浏览器启动失败')
-            return None
+        # if self.web_driver.service.process:
+        #     self.bic_process_signal.emit('浏览器启动成功, 请在100秒内登录')
+        # else:
+        #     self.bic_process_signal.emit('浏览器启动失败')
+        #     return None
         # 如果浏览器被关闭，那么就结束线程
         try:
-            request = self.web_driver.wait_for_request('printer', timeout=100)
-            print('123')
-            cookie = request.headers.get('cookie')
-            self.get_cookie_signal_str = '获取 cookie 成功'
-            print('cookie：', cookie)
+            for i in range(1, 200):
+                current_url = self.web_driver.current_url
+                if '/bic/order/printer' in current_url:
+                    cookie = self.web_driver.execute_script('return document.cookie')
+                    self.web_driver.quit()
+                    return cookie
+                time.sleep(1)
             self.web_driver.quit()
-            return cookie
+            return None
+        except NoSuchWindowException as e:
+            print('浏览器被关闭')
+            self.browser_killed_signal.emit(True)
+            self.web_driver.quit()
+            return None
+
         except TimeoutException as e:
+            print('请求超时')
             self.web_driver.quit()
-            self.bic_process_signal.emit('获取 cookie 失败，请求超时')
             return None
 
     def run(self):
@@ -64,9 +69,7 @@ class GetBicThread(QThread):
             self.bic_process_signal.emit('获取 cookie 失败，程序退出')
             self.bic_finish_signal.emit(False, 0)
             return None
-        print('循环外部，run 执行')
         for times in range(1, self.loop_count + 1):
-            print('循环即将开始', times)
             bic_code_obj = BicCode(
                 cookie_str=cookie,
                 user_shop_id=self.user_shop_id
