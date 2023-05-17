@@ -1,4 +1,6 @@
 import time
+from win32process import CREATE_NO_WINDOW
+
 from PyQt5.QtCore import QThread, pyqtSignal
 from selenium.common import TimeoutException
 from seleniumwire import webdriver
@@ -14,10 +16,19 @@ class GetBicThread(QThread):
     # 定义信号
     bic_finish_signal = pyqtSignal(bool, int)
     bic_process_signal = pyqtSignal(str)
+    browser_killed_signal = pyqtSignal(bool)    # 浏览器被意外关闭的信号
 
     def __init__(self, user_shop_id, loop_count, *args, **kwargs):
         super(GetBicThread, self).__init__(*args, **kwargs)
-        self.web_driver = webdriver.Chrome()
+        self.web_driver_options = webdriver.ChromeOptions()
+
+        self.web_driver_options.add_argument('--silent')
+        self.web_driver_options.add_argument('--log-level=3')
+        self.web_driver_options.add_argument('--disable-gpu')
+        self.web_driver_options.add_argument('--disable-extensions')
+        self.web_driver_options.add_argument('--disable-dev-shm-usage')
+        self.web_driver = webdriver.Chrome(options=self.web_driver_options)
+        self.web_driver.service.creation_flags = CREATE_NO_WINDOW
         self.user_shop_id = user_shop_id
         self.loop_count = loop_count
         self.amount = 0
@@ -33,9 +44,10 @@ class GetBicThread(QThread):
         else:
             self.bic_process_signal.emit('浏览器启动失败')
             return None
-        # 如果浏览器被关闭，那么就退出程序
+        # 如果浏览器被关闭，那么就结束线程
         try:
             request = self.web_driver.wait_for_request('printer', timeout=100)
+            print('123')
             cookie = request.headers.get('cookie')
             self.get_cookie_signal_str = '获取 cookie 成功'
             print('cookie：', cookie)
