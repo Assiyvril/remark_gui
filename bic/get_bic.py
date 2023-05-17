@@ -23,7 +23,8 @@ class BicCode:
         self.user_shop_id = user_shop_id
         self.pdf_file_bytes = self.get_pdf_file()
         self.result_bic_list = self.parse_pdf_file()
-        self.upload_bic_result = self.upload_bic_code()
+        self.upload_bic_result = False
+        self.upload_bic_code()
         self.get_pdf_signal_str = ''
         self.parse_pdf_signal_str = ''
         self.upload_bic_signal_str = ''
@@ -101,6 +102,7 @@ class BicCode:
         :return:
         """
         if not self.result_bic_list:
+
             self.upload_bic_signal_str = '上传 BIC 码出错，result_bic_list 为空，无法上传'
             return False
         headers = {
@@ -117,7 +119,7 @@ class BicCode:
             response = requests.post(UPLOAD_BIC_URL, headers=headers, data=data).json()
             if response.get('code') == 200 and response.get('msg') == '获取列表成功':
                 self.upload_bic_signal_str = 'BIC 码上传成功'
-                print('函数内部打印成功信号字符串：', self.upload_bic_signal_str)
+                self.upload_bic_result = True
                 return True
             else:
                 self.upload_bic_signal_str = 'BIC 码上传失败, 服务器返回内容不匹配：' + str(response)
