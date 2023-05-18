@@ -74,7 +74,6 @@ class BicCode:
                 bic_code = page.extract_text().strip()
                 if not bic_code:
                     self.parse_pdf_signal_str = '解析 pdf 文件出错，pdf 中有未解析成功的页面'
-                    print('当前页码：', page.page_number, '未提取到内容，已将文件保存到当前目录，文件名为：', page.page_number, '.pdf')
                     page.to_image().save('空内容' + str(page.page_number) + '.pdf')
                     continue
 
@@ -82,7 +81,6 @@ class BicCode:
                 pattern = r'^\d+$'
                 if not re.match(pattern, bic_code):
                     self.parse_pdf_signal_str = '解析 pdf 文件出错，pdf 中有非法内容页面（不全为数字）'
-                    print('当前页码：', page.page_number, '提取到的内容不合法，已将文件保存到当前目录，文件名为：', page.page_number, '.pdf')
                     page.to_image().save('非法内容' + str(page.page_number) + '.pdf')
                     continue
 

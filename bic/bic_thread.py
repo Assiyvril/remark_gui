@@ -53,13 +53,11 @@ class GetBicThread(QThread):
             self.web_driver.quit()
             return None
         except NoSuchWindowException as e:
-            print('浏览器被关闭')
             self.browser_killed_signal.emit(True)
             self.web_driver.quit()
             return None
 
         except TimeoutException as e:
-            print('请求超时')
             self.web_driver.quit()
             return None
 
@@ -78,14 +76,12 @@ class GetBicThread(QThread):
                 bic_count = len(bic_code_obj.result_bic_list)
                 self.amount += bic_count
                 info_msg = f'第 {times} 次循环：已获取了{bic_count}条 BIC 码，并上传成功, 休眠 10 秒'
-                print(info_msg)
                 self.bic_process_signal.emit(info_msg)
                 time.sleep(10)
             else:
                 bic_count = len(bic_code_obj.result_bic_list)
                 self.amount += bic_count
                 info_msg = f'第 {times} 次循环出错，获取到 {bic_count} 条。下载过程：{bic_code_obj.get_pdf_signal_str}。解析过程：{bic_code_obj.parse_pdf_signal_str}。上传过程：{bic_code_obj.upload_bic_signal_str}, 休眠 10 秒'
-                print(info_msg)
                 self.bic_process_signal.emit(info_msg)
                 time.sleep(10)
 
