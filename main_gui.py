@@ -176,6 +176,13 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.get_bic_thread.bic_process_signal.connect(self.show_get_bic_process)
         self.get_bic_thread.bic_finish_signal.connect(self.bic_finish)
         self.get_bic_thread.browser_killed_signal.connect(self.browser_killed)
+        self.get_bic_thread.get_cookie_signal.connect(self.get_cookie)
+
+    def get_cookie(self, cookie):
+        info = '已成功抓取到 Cookie，浏览器自动关闭，请耐心等待 BIC 获取完成，每次获取100 个，每轮循环间隔 10 秒'
+        QMessageBox.information(self, 'Cookie 抓取成功', info)
+        self.statusbar.showMessage('已成功抓取到 Cookie，正在获取 BIC ...')
+        return None
 
     def browser_killed(self):
         """

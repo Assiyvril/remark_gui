@@ -16,6 +16,7 @@ class GetBicThread(QThread):
     bic_finish_signal = pyqtSignal(bool, int)
     bic_process_signal = pyqtSignal(str)
     browser_killed_signal = pyqtSignal(bool)    # 浏览器被意外关闭的信号
+    get_cookie_signal = pyqtSignal(bool)
 
     def __init__(self, user_shop_id, loop_count, *args, **kwargs):
         super(GetBicThread, self).__init__(*args, **kwargs)
@@ -67,6 +68,7 @@ class GetBicThread(QThread):
             self.bic_process_signal.emit('获取 cookie 失败，程序退出')
             self.bic_finish_signal.emit(False, 0)
             return None
+        self.get_cookie_signal.emit(True)
         for times in range(1, self.loop_count + 1):
             bic_code_obj = BicCode(
                 cookie_str=cookie,
