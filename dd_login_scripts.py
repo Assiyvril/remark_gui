@@ -4,6 +4,7 @@
 2 通过 clientId（AppKey）和 clientSecret（AppSecret）获取用户 Token
 
 """
+import json
 import re
 import sys
 import requests
@@ -29,15 +30,17 @@ class DingLogin:
         self.have_response = False      # 是否有响应, 若没有响应则应检查网络
         self.legal = True     # 是否合法用户
         self.user_name = None       # 登陆后赋值的 用户名
-        self.user_shop = None       # 登陆后赋值的 用户所属店铺
-        self.user_shop_id = None    # 登陆后赋值的 用户所属店铺id
-
+        self.user_shop = None       # 登陆后赋值的 用户所属店铺 # 默认
+        self.user_shop_id = None    # 登陆后赋值的 用户所属店铺id   # 默认
+        self.shop_list = None       # 登陆后赋值的 用户所属店铺列表
         self.login()
 
     def login(self):
         login_url = f'https://web.slpzb.com/rest/v1/account/dinglogin/?code={self.sns_code}&state=STATE&flatdata=2&myshop=shilipai'
         try:
             response = requests.get(login_url).json()
+            # 格式化输出 json
+            print(json.dumps(response, indent=4, ensure_ascii=False))
         except Exception:
             response = None
         if not response:
@@ -54,6 +57,12 @@ class DingLogin:
             self.user_name = response.get('data').get('username')
         except Exception:
             self.user_name = '未获取到用户名'
+
+        try:
+            self.shop_list = response.get('data').get('actionshop')
+
+        except Exception:
+            self.shop_list = None
         try:
             self.user_shop = response.get('data').get('prefix').get('name')
         except Exception:
