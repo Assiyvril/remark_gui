@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QMessageBox, \
 from dd_login_scripts import DingLoginRequestInterceptor, QR_URL
 from main_gui import MainGui
 
+
 class ChoiceShopDialog(QDialog):
     """
     选择店铺的对话框

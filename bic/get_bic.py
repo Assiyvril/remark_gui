@@ -49,6 +49,7 @@ class BicCode:
             file_type = filetype.guess(pdf_file_bytes)
             if file_type.extension == 'pdf':
                 self.get_pdf_signal_str = '下载 bic_pdf 文件成功'
+                print('74 号店铺，下载pdf成功')
                 return pdf_file_bytes
             else:
                 self.get_pdf_signal_str = '下载 bic_pdf 文件出错，请求response文件不是 pdf 文件'
@@ -86,6 +87,8 @@ class BicCode:
 
                 result_bic_list.append(bic_code)
             pdf_file.close()
+            print('74 号店铺，解析pdf成功')
+            print(result_bic_list)
         if not result_bic_list:
             self.parse_pdf_signal_str = '解析 pdf 文件出错，未提取到任何 BIC 码'
             return None
@@ -115,9 +118,12 @@ class BicCode:
 
         try:
             response = requests.post(UPLOAD_BIC_URL, headers=headers, data=data).json()
+            print('74 号店铺，上传bic成功')
+            print(response)
             if response.get('code') == 200 and response.get('msg') == '获取列表成功':
                 self.upload_bic_signal_str = 'BIC 码上传成功'
                 self.upload_bic_result = True
+
                 return True
             else:
                 self.upload_bic_signal_str = 'BIC 码上传失败, 服务器返回内容不匹配：' + str(response)
