@@ -163,7 +163,7 @@ class MainGui(QMainWindow, Ui_mainWindow):
         self.QuitButton.setDisabled(True)
         self.SubmitRemarkButton.setDisabled(True)
         self.ClearRemarkButton.setDisabled(True)
-        self.FlagRed.setDisabled(True)
+        # self.FlagRed.setDisabled(True)
         # 这个线程需要优化
         # TODO 测试封装的 ChromeDriver
         # TODO 检测 已开启的Driver被关闭的情况
